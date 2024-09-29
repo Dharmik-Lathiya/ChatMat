@@ -1,0 +1,149 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Comatible" content="IE=edge">
+    <title>ChatMet</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="chatmat_nav">
+        <div class="header-first-head-te" id="na"></div>
+        <div class="header-first-head-logo"></div>
+        <div class="header-first-head-logo-pro" name="profile" id="profileid"></div>
+    </div>
+    <div class="heaer">
+        <div class="header-first">
+            <div class="header-first-head">
+                <div class="header-first-head-logo"></div>
+            </div>
+            <div class="header-first-body">
+            </div>
+            <div class="header-first-foot">
+                <div class="header-first-foot-head">Sign Up Or Login</div>
+                <div class="header-first-foot-body">Your gateway to lively conversations and meaningful
+                    connections. Explore diverse chatrooms and engage in real-time discussions
+                    with like-minded individuals.</div>
+                <button id="signUp">Sign Up</button><br>
+                <button id="login">Login</button>
+            </div>
+        </div>
+        <div class="header-second">
+            <div class="header-second-content" id="content"></div>
+
+            <div class="header-second-button">
+                <input type="text" id="input" placeholder="Type a message">
+                <button id="submit"><img src="Assets/send.png" height="20vw" width="20vw" id="inputLogo"></button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+        import { getAuth, GoogleAuthProvider, onAuthStateChanged, } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+      
+        const firebaseConfig = {
+          apiKey: "AIzaSyCPT7YljgWzidU8VR0vpPFwTVruBkF9fwU",
+          authDomain: "chatmat-752f4.firebaseapp.com",
+          projectId: "chatmat-752f4",
+          storageBucket: "chatmat-752f4.appspot.com",
+          messagingSenderId: "868960762445",
+          appId: "1:868960762445:web:7f292194abb0b5eb39fa04",
+          measurementId: "G-223QXY1Q60"
+        };
+      
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+      
+        var userName;
+        var userEmail;
+        var userPhoto;
+    
+        function updateUserProfile(user) {
+            userName = user.displayName;
+            userEmail = user.email;
+            userPhoto = user.photoURL;
+            document.getElementById("na").innerHTML="<b>Hello, <a style='font-weight:100;'>"+userName+"</a></b>";
+            document.getElementById("profileid").innerHTML="<img src='"+userPhoto+"' id='dp'>";
+            console.log(userEmail);
+            console.log(userName);
+            console.log(userPhoto);
+        }
+        
+        
+
+        onAuthStateChanged(auth, (user) => {
+            updateUserProfile(user);
+        });
+
+        var myarray = [];
+        let myarrayjs = [];
+        let content = document.getElementById("content");
+        let btn = document.getElementById("submit");
+        let input=document.getElementById("input").value;
+
+        
+        
+        onValue(ref(db, 'chats/'), function (call) {
+            myarrayjs = call.val();
+            if (myarrayjs == null) {
+                myarray = [];
+            }
+            else {
+                myarray = myarrayjs;
+            }
+            content.innerHTML = " ";
+
+            for (let i = 0; i < myarray.length; i++) {
+                let p = document.createElement('p');
+                p.innerHTML ='<div id="cantiner">'
+                            +'<div>' +`<img src="${myarray[i].img}" id="dp">`+'</div>'
+                              +'<div id="text">'
+                                +'<div id="name"> ~'+ myarray[i].name+'</div>' 
+                                +'<div id="chat">  '+ myarray[i].input+'</div>' 
+                                +'</div>'
+                                +'</div>';
+                content.appendChild(p);
+            }
+        });
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            let obj = {
+                "img": userPhoto,
+                "name": userName,
+                "input": document.getElementById("input").value
+            }
+            
+            myarray.push(obj);
+            console.log(myarray);
+            set(ref(db, 'chats/'),myarray); 
+            
+            content.innerHTML = " ";
+            for (let i = 0; i < myarray.length; i++) {
+                let p = document.createElement('p');
+                p.innerHTML ='<div id="cantiner">'
+                                +'<div>' +`<img src="${myarray[i].img}" id="dp">`+'</div>'
+                                +'<div id="text">'
+                                    +'<div id="name">'+ myarray[i].name+'</div>' 
+                                    +'<div id="chat">'+ myarray[i].input+'</div>' 
+                                +'</div>'
+                            +'</div>';
+                content.appendChild(p);
+            }
+            obj = {
+
+            }
+            document.getElementById("input").value = "";
+        }
+    )
+        
+    
+      </script>
+</body>
+</html>
