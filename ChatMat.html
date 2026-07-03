@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Comatible" content="IE=edge">
-    <title>ChatMet</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ChatMat</title>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -21,32 +21,70 @@
                 <div class="header-first-head-logo"></div>
             </div>
             <div class="header-first-body">
+                <div class="sidebar-user" id="sidebarUser">
+                    <img src="" id="sidebarPic" class="sidebar-avatar">
+                    <div id="sidebarName" class="sidebar-name"></div>
+                    <div id="sidebarEmail" class="sidebar-email"></div>
+                </div>
+                <div class="sidebar-room" id="sidebarRoom">
+                    <div class="room-label">Current Room</div>
+                    <div id="currentRoom" class="room-name">-</div>
+                    <button id="switchRoomBtn" class="switch-room-btn">Switch Room</button>
+                </div>
             </div>
             <div class="header-first-foot">
-                <div class="header-first-foot-head">Sign Up Or Login</div>
-                <div class="header-first-foot-body">Your gateway to lively conversations and meaningful
-                    connections. Explore diverse chatrooms and engage in real-time discussions
-                    with like-minded individuals.</div>
-                <button id="signUp">Sign Up</button><br>
-                <button id="login">Login</button>
+                <div class="header-first-foot-head">ChatMat</div>
+                <div class="header-first-foot-body">Real-time chat with file sharing. Connect and share moments instantly.</div>
+                <button id="logoutBtn">Logout</button>
             </div>
         </div>
         <div class="header-second">
             <div class="header-second-content" id="content"></div>
 
             <div class="header-second-button">
-                <input type="text" id="input" placeholder="Type a message">
-                <button id="submit"><img src="Assets/send.png" height="20vw" width="20vw" id="inputLogo"></button>
+                <label for="fileInput" class="attach-btn" id="attachBtn">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+                    </svg>
+                </label>
+                <input type="file" id="fileInput" hidden>
+                <div class="input-wrap">
+                    <input type="text" id="input" placeholder="Type a message" autocomplete="off">
+                    <span id="fileNamePreview" class="file-preview"></span>
+                </div>
+                <button id="submit">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="white" stroke="white" stroke-width="0">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
-    <script type="module">
+    <div class="room-overlay" id="roomOverlay">
+        <div class="room-modal">
+            <div class="room-modal-logo">ChatMat</div>
+            <div class="room-modal-sub">Enter a room to start chatting</div>
+            <div class="room-modal-field">
+                <label>Room Name</label>
+                <input type="text" id="roomNameInput" placeholder="e.g. my-team-room" autocomplete="off">
+            </div>
+            <div class="room-modal-field">
+                <label>Passcode</label>
+                <input type="password" id="roomPassInput" placeholder="Team passcode">
+                <div class="room-hint" id="roomHint">New room — this passcode will be saved</div>
+            </div>
+            <div class="room-error" id="roomError"></div>
+            <button id="roomJoinBtn" class="room-join-btn">Join Room</button>
+        </div>
+    </div>
 
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
-        import { getAuth, GoogleAuthProvider, onAuthStateChanged, } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-      
+        import { getAuth, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
         const firebaseConfig = {
           apiKey: "AIzaSyCPT7YljgWzidU8VR0vpPFwTVruBkF9fwU",
           authDomain: "chatmat-752f4.firebaseapp.com",
@@ -56,94 +94,309 @@
           appId: "1:868960762445:web:7f292194abb0b5eb39fa04",
           measurementId: "G-223QXY1Q60"
         };
-      
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-      
+        const storage = getStorage(app);
+
         var userName;
         var userEmail;
         var userPhoto;
-    
-        function updateUserProfile(user) {
-            userName = user.displayName;
-            userEmail = user.email;
-            userPhoto = user.photoURL;
-            document.getElementById("na").innerHTML="<b>Hello, <a style='font-weight:100;'>"+userName+"</a></b>";
-            document.getElementById("profileid").innerHTML="<img src='"+userPhoto+"' id='dp'>";
-            console.log(userEmail);
-            console.log(userName);
-            console.log(userPhoto);
+        var userUid;
+        var selectedFile = null;
+        var currentRoom = null;
+        var messagesRef = null;
+        var messagesListener = null;
+
+        function setUserDisplay(name, email, photo, uid) {
+            userName = name;
+            userEmail = email;
+            userPhoto = photo;
+            userUid = uid;
+            document.getElementById("na").innerHTML = "<b>Hello, <a style='font-weight:100;'>" + userName + "</a></b>";
+            document.getElementById("profileid").innerHTML = "<img src='" + userPhoto + "' id='dp'>";
+            document.getElementById("sidebarPic").src = userPhoto;
+            document.getElementById("sidebarName").textContent = userName;
+            document.getElementById("sidebarEmail").textContent = userEmail;
         }
-        
-        
 
         onAuthStateChanged(auth, (user) => {
-            updateUserProfile(user);
+            if (user) {
+                setUserDisplay(user.displayName, user.email, user.photoURL, user.uid);
+                let savedRoom = localStorage.getItem('chatmat_room');
+                if (savedRoom) {
+                    initRoom(savedRoom);
+                } else {
+                    showRoomModal();
+                }
+            } else {
+                window.location.href = "./index.html";
+            }
         });
 
-        var myarray = [];
-        let myarrayjs = [];
+        function sanitizeRoom(name) {
+            return name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'room';
+        }
+
+        let myarray = [];
         let content = document.getElementById("content");
         let btn = document.getElementById("submit");
-        let input=document.getElementById("input").value;
+        let fileInput = document.getElementById("fileInput");
+        let attachBtn = document.getElementById("attachBtn");
+        let fileNamePreview = document.getElementById("fileNamePreview");
 
-        
-        
-        onValue(ref(db, 'chats/'), function (call) {
-            myarrayjs = call.val();
-            if (myarrayjs == null) {
-                myarray = [];
-            }
-            else {
-                myarray = myarrayjs;
-            }
-            content.innerHTML = " ";
+        function scrollToBottom() {
+            setTimeout(() => {
+                content.scrollTop = content.scrollHeight;
+            }, 50);
+        }
 
+        function renderMessages() {
+            content.innerHTML = "";
             for (let i = 0; i < myarray.length; i++) {
-                let p = document.createElement('p');
-                p.innerHTML ='<div id="cantiner">'
-                            +'<div>' +`<img src="${myarray[i].img}" id="dp">`+'</div>'
-                              +'<div id="text">'
-                                +'<div id="name"> ~'+ myarray[i].name+'</div>' 
-                                +'<div id="chat">  '+ myarray[i].input+'</div>' 
-                                +'</div>'
-                                +'</div>';
-                content.appendChild(p);
+                let msg = myarray[i];
+                let isOwn = msg.uid === userUid;
+                let div = document.createElement('div');
+                div.className = 'msg-row ' + (isOwn ? 'msg-own' : 'msg-other');
+
+                let bubble = document.createElement('div');
+                bubble.className = 'msg-bubble ' + (isOwn ? 'bubble-own' : 'bubble-other');
+
+                let nameEl = document.createElement('div');
+                nameEl.className = 'msg-name';
+                nameEl.textContent = '~' + msg.name;
+
+                let textEl = document.createElement('div');
+                textEl.className = 'msg-text';
+                textEl.textContent = msg.input;
+
+                bubble.appendChild(nameEl);
+                bubble.appendChild(textEl);
+
+                if (msg.fileUrl) {
+                    if (msg.fileType === 'image') {
+                        let img = document.createElement('img');
+                        img.src = msg.fileUrl;
+                        img.className = 'msg-image';
+                        img.loading = 'lazy';
+                        bubble.appendChild(img);
+                    } else {
+                        let link = document.createElement('a');
+                        link.href = msg.fileUrl;
+                        link.target = '_blank';
+                        link.className = 'msg-file';
+                        link.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> ' + (msg.fileName || 'Download File');
+                        bubble.appendChild(link);
+                    }
+                }
+
+                if (isOwn) {
+                    div.appendChild(bubble);
+                    let avatar = document.createElement('img');
+                    avatar.src = msg.img;
+                    avatar.className = 'msg-avatar';
+                    div.appendChild(avatar);
+                } else {
+                    let avatar = document.createElement('img');
+                    avatar.src = msg.img;
+                    avatar.className = 'msg-avatar';
+                    div.appendChild(avatar);
+                    div.appendChild(bubble);
+                }
+
+                content.appendChild(div);
+            }
+            scrollToBottom();
+        }
+
+        function initRoom(roomName) {
+            currentRoom = sanitizeRoom(roomName);
+            document.getElementById('currentRoom').textContent = currentRoom;
+            document.getElementById('roomOverlay').style.display = 'none';
+
+            if (messagesListener) {
+                messagesListener();
+            }
+
+            messagesRef = ref(db, 'rooms/' + currentRoom + '/messages');
+            messagesListener = onValue(messagesRef, function (call) {
+                let data = call.val();
+                if (data == null) {
+                    myarray = [];
+                } else {
+                    myarray = data;
+                }
+                renderMessages();
+            });
+        }
+
+        function showRoomModal() {
+            document.getElementById('roomOverlay').style.display = 'flex';
+            document.getElementById('roomNameInput').value = '';
+            document.getElementById('roomPassInput').value = '';
+            document.getElementById('roomError').textContent = '';
+            document.getElementById('roomHint').textContent = '';
+        }
+
+        document.getElementById('roomNameInput').addEventListener('input', async function () {
+            let room = sanitizeRoom(this.value);
+            let hint = document.getElementById('roomHint');
+            let err = document.getElementById('roomError');
+            err.textContent = '';
+            if (room.length < 2) {
+                hint.textContent = '';
+                return;
+            }
+            try {
+                let snap = await get(child(ref(db), 'rooms/' + room + '/passcode'));
+                if (snap.exists()) {
+                    hint.textContent = 'Room exists — enter the passcode to join';
+                    hint.style.color = '#ffd700';
+                } else {
+                    hint.textContent = 'New room — this passcode will be saved';
+                    hint.style.color = '#aaa';
+                }
+            } catch {
+                hint.textContent = 'New room — this passcode will be saved';
+                hint.style.color = '#aaa';
             }
         });
-        btn.addEventListener("click", function (e) {
+
+        document.getElementById('roomJoinBtn').addEventListener('click', async function () {
+            let room = sanitizeRoom(document.getElementById('roomNameInput').value);
+            let pass = document.getElementById('roomPassInput').value;
+            let err = document.getElementById('roomError');
+            err.textContent = '';
+
+            if (!room || room.length < 2) {
+                err.textContent = 'Enter a room name (at least 2 characters).';
+                return;
+            }
+            if (!pass) {
+                err.textContent = 'Enter a passcode.';
+                return;
+            }
+
+            try {
+                let snap = await get(child(ref(db), 'rooms/' + room + '/passcode'));
+                if (snap.exists()) {
+                    if (snap.val() !== pass) {
+                        err.textContent = 'Wrong passcode for this room.';
+                        return;
+                    }
+                } else {
+                    await set(child(ref(db), 'rooms/' + room + '/passcode'), pass);
+                    await set(child(ref(db), 'rooms/' + room + '/messages'), []);
+                }
+                localStorage.setItem('chatmat_room', room);
+                initRoom(room);
+            } catch (e) {
+                err.textContent = 'Something went wrong. Try again.';
+                console.error(e);
+            }
+        });
+
+        document.getElementById('roomNameInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('roomPassInput').focus();
+            }
+        });
+
+        document.getElementById('roomPassInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('roomJoinBtn').click();
+            }
+        });
+
+        document.getElementById('switchRoomBtn').addEventListener('click', function () {
+            if (messagesListener) {
+                messagesListener();
+                messagesListener = null;
+            }
+            messagesRef = null;
+            currentRoom = null;
+            localStorage.removeItem('chatmat_room');
+            myarray = [];
+            content.innerHTML = '<div class="empty-state">Switch to another room</div>';
+            showRoomModal();
+        });
+
+        fileInput.addEventListener('change', function (e) {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                fileNamePreview.textContent = selectedFile.name;
+            }
+        });
+
+        attachBtn.addEventListener('click', function (e) {
             e.preventDefault();
+            fileInput.click();
+        });
+
+        async function sendMessage() {
+            let inputEl = document.getElementById("input");
+            let text = inputEl.value.trim();
+
+            if (!text && !selectedFile) return;
+            if (!currentRoom) return;
+
             let obj = {
                 "img": userPhoto,
                 "name": userName,
-                "input": document.getElementById("input").value
-            }
-            
-            myarray.push(obj);
-            console.log(myarray);
-            set(ref(db, 'chats/'),myarray); 
-            
-            content.innerHTML = " ";
-            for (let i = 0; i < myarray.length; i++) {
-                let p = document.createElement('p');
-                p.innerHTML ='<div id="cantiner">'
-                                +'<div>' +`<img src="${myarray[i].img}" id="dp">`+'</div>'
-                                +'<div id="text">'
-                                    +'<div id="name">'+ myarray[i].name+'</div>' 
-                                    +'<div id="chat">'+ myarray[i].input+'</div>' 
-                                +'</div>'
-                            +'</div>';
-                content.appendChild(p);
-            }
-            obj = {
+                "uid": userUid,
+                "input": text,
+                "fileUrl": "",
+                "fileType": "",
+                "fileName": ""
+            };
 
+            if (selectedFile) {
+                try {
+                    let fileRef = storageRef(storage, currentRoom + '/' + Date.now() + '_' + selectedFile.name);
+                    await uploadBytes(fileRef, selectedFile);
+                    let url = await getDownloadURL(fileRef);
+                    obj.fileUrl = url;
+                    obj.fileType = selectedFile.type.startsWith('image/') ? 'image' : 'file';
+                    obj.fileName = selectedFile.name;
+                } catch (err) {
+                    console.error("Upload failed", err);
+                    alert("File upload failed. Please try again.");
+                    return;
+                }
             }
-            document.getElementById("input").value = "";
+
+            myarray.push(obj);
+            await set(ref(db, 'rooms/' + currentRoom + '/messages'), myarray);
+
+            inputEl.value = "";
+            fileNamePreview.textContent = "";
+            selectedFile = null;
+            fileInput.value = "";
+            renderMessages();
         }
-    )
-        
-    
-      </script>
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            sendMessage();
+        });
+
+        document.getElementById("input").addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        document.getElementById("logoutBtn").addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem('chatmat_room');
+            signOut(auth).then(() => {
+                window.location.href = "./index.html";
+            });
+        });
+    </script>
 </body>
 </html>

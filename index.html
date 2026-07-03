@@ -1,136 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Design by foolishdeveloper.com -->
-    <title>Glassmorphism login Form Tutorial in html css</title>
- 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatMat - Login</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-    <!--Stylesheet-->
-    <style media="screen">
-      *,
-*:before,
-*:after{
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-body{
-    background-color: #080710;
-}
-.background{
-    width: 430px;
-    height: 520px;
-    position: absolute;
-    transform: translate(-50%,-50%);
-    left: 50%;
-    top: 50%;
-}
-.background .shape{
-    height: 200px;
-    width: 200px;
-    position: absolute;
-    border-radius: 50%;
-}
-.shape:first-child{
-    background: linear-gradient(
-        #1845ad,
-        #23a2f6
-    );
-    left: -80px;
-    top: -80px;
-}
-.shape:last-child{
-    background: linear-gradient(
-        to right,
-        #ff512f,
-        #f09819
-    );
-    right: -30px;
-    bottom: -80px;
-}
-form{
-    height: 520px;
-    width: 400px;
-    background-color: rgba(255,255,255,0.13);
-    position: absolute;
-    transform: translate(-50%,-50%);
-    top: 50%;
-    left: 50%;
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255,255,255,0.1);
-    box-shadow: 0 0 40px rgba(8,7,16,0.6);
-    padding: 50px 35px;
-}
-form *{
-    font-family: 'Poppins',sans-serif;
-    color: #ffffff;
-    letter-spacing: 0.5px;
-    outline: none;
-    border: none;
-}
-form h3{
-    font-size: 32px;
-    font-weight: 500;
-    line-height: 42px;
-    text-align: center;
-}
-
-label{
-    display: block;
-    margin-top: 30px;
-    font-size: 16px;
-    font-weight: 500;
-}
-input{
-    display: block;
-    height: 50px;
-    width: 100%;
-    background-color: rgba(255,255,255,0.07);
-    border-radius: 3px;
-    padding: 0 10px;
-    margin-top: 8px;
-    font-size: 14px;
-    font-weight: 300;
-}
-::placeholder{
-    color: #e5e5e5;
-}
-button{
-    margin-top: 50px;
-    width: 100%;
-    background-color: #ffffff;
-    color: #080710;
-    padding: 15px 0;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.social{
-  margin-top: 30px;
-  display: flex;
-}
-.social div{
-  background: red;
-  width: 150px;
-  border-radius: 3px;
-  padding: 5px 10px 10px 5px;
-  background-color: rgba(255,255,255,0.27);
-  color: #eaf0fb;
-  text-align: center;
-}
-.social div:hover{
-  background-color: rgba(255,255,255,0.47);
-}
-.social .fb{
-  margin-left: 25px;
-}
-.social i{
-  margin-right: 4px;
-}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *:before,
+        *:after {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0d0d0d;
+            font-family: 'Roboto', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 20% 30%, #0a2a1f 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 70%, #0d1f2e 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 50%, #1a1a1a 0%, #0d0d0d 100%);
+        }
+        .background {
+            width: 430px;
+            height: 520px;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            left: 50%;
+            top: 50%;
+        }
+        .background .shape {
+            height: 200px;
+            width: 200px;
+            position: absolute;
+            border-radius: 50%;
+        }
+        .shape:first-child {
+            background: linear-gradient(#0fa37f, #0cb58b);
+            left: -80px;
+            top: -80px;
+        }
+        .shape:last-child {
+            background: linear-gradient(to right, #1845ad, #23a2f6);
+            right: -30px;
+            bottom: -80px;
+        }
+        form {
+            width: 400px;
+            background-color: rgba(38, 38, 38, 0.85);
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+            padding: 40px 35px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        form * {
+            font-family: 'Roboto', sans-serif;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            outline: none;
+            border: none;
+        }
+        .logo-text {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            color: #0cb58b;
+        }
+        .subtitle {
+            font-size: 14px;
+            font-weight: 300;
+            text-align: center;
+            color: #aaa;
+            margin-top: 6px;
+            margin-bottom: 16px;
+        }
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.06);
+            border-radius: 6px;
+            padding: 3px;
+            margin-bottom: 10px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            color: #999;
+        }
+        .tab.active {
+            background: #0cb58b;
+            color: white;
+        }
+        label {
+            display: block;
+            margin-top: 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #ccc;
+        }
+        input {
+            display: block;
+            height: 44px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.07);
+            border-radius: 4px;
+            padding: 0 14px;
+            margin-top: 5px;
+            font-size: 14px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #0cb58b;
+        }
+        ::placeholder {
+            color: #888;
+        }
+        .name-field {
+            display: none;
+        }
+        .name-field.show {
+            display: block;
+        }
+        .auth-btn {
+            margin-top: 18px;
+            width: 100%;
+            background-color: #0cb58b;
+            color: white;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 0;
+        }
+        .auth-btn:hover {
+            background-color: #0a9a75;
+        }
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: 6px;
+            text-align: center;
+            min-height: 18px;
+        }
+        .social {
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+        }
+        .social div {
+            background: rgba(255, 255, 255, 0.1);
+            width: 200px;
+            border-radius: 5px;
+            padding: 11px 10px;
+            color: #fff;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .social div:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #0cb58b;
+        }
+        .social i {
+            font-size: 18px;
+        }
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0 4px;
+        }
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .or-divider span {
+            color: #888;
+            font-size: 12px;
+        }
 
     </style>
 </head>
@@ -139,59 +216,136 @@ button{
         <div class="shape"></div>
         <div class="shape"></div>
     </div>
-    <form>
-        <h3>Login Here</h3>
+    <form id="authForm">
+        <div class="logo-text">ChatMat</div>
+        <div class="subtitle">Real-time chat with file sharing</div>
 
-        <label for="username">Username</label>
-        <input type="text" placeholder="Email or Phone" id="username">
+        <div class="tabs">
+            <div class="tab active" data-tab="login">Login</div>
+            <div class="tab" data-tab="signup">Sign Up</div>
+        </div>
+
+        <div class="name-field" id="nameField">
+            <label for="name">Name</label>
+            <input type="text" placeholder="Your display name" id="name">
+        </div>
+
+        <label for="email">Email</label>
+        <input type="email" placeholder="Enter your email" id="email">
 
         <label for="password">Password</label>
-        <input type="password" placeholder="Password" id="password">
+        <input type="password" placeholder="Enter your password" id="password">
 
-        <button>Log In</button>
+        <div class="error-msg" id="errorMsg"></div>
+
+        <button class="auth-btn" id="authBtn">Log In</button>
+
+        <div class="or-divider"><span>OR</span></div>
+
         <div class="social">
-          <div class="go" id="btn"><i class="fab fa-google"></i>  Google</div>
+            <div class="go" id="googleBtn"><i class="fab fa-google"></i> Continue with Google</div>
         </div>
+
     </form>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script type="module">
-  
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-        import { getAuth , GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
         const firebaseConfig = {
-          apiKey: "AIzaSyCPT7YljgWzidU8VR0vpPFwTVruBkF9fwU",
-          authDomain: "chatmat-752f4.firebaseapp.com",
-          projectId: "chatmat-752f4",
-          storageBucket: "chatmat-752f4.appspot.com",
-          messagingSenderId: "868960762445",
-          appId: "1:868960762445:web:7f292194abb0b5eb39fa04",
-          measurementId: "G-223QXY1Q60"
+            apiKey: "AIzaSyCPT7YljgWzidU8VR0vpPFwTVruBkF9fwU",
+            authDomain: "chatmat-752f4.firebaseapp.com",
+            projectId: "chatmat-752f4",
+            storageBucket: "chatmat-752f4.appspot.com",
+            messagingSenderId: "868960762445",
+            appId: "1:868960762445:web:7f292194abb0b5eb39fa04",
+            measurementId: "G-223QXY1Q60"
         };
-      
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-      
-      auth.languageCode = 'en';
-      const provider = new GoogleAuthProvider();
-      
-      const googleLogin = document.getElementById("btn");
-      googleLogin.addEventListener("click",function(){
-          signInWithPopup(auth, provider)
-        .then((result) => {
-          
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-          const user = result.user;
-          console.log("user",user);
-          window.location.href="./ChatMat.html";
-      
-      
-        }).catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
+        auth.languageCode = 'en';
+
+        let currentTab = 'login';
+
+        const tabLogin = document.querySelector('[data-tab="login"]');
+        const tabSignup = document.querySelector('[data-tab="signup"]');
+        const nameField = document.getElementById('nameField');
+        const authBtn = document.getElementById('authBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const nameInput = document.getElementById('name');
+
+        function setTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'login') {
+                tabLogin.classList.add('active');
+                nameField.classList.remove('show');
+                authBtn.textContent = 'Log In';
+            } else {
+                tabSignup.classList.add('active');
+                nameField.classList.add('show');
+                authBtn.textContent = 'Sign Up';
+            }
+            errorMsg.textContent = '';
+        }
+
+        tabLogin.addEventListener('click', () => setTab('login'));
+        tabSignup.addEventListener('click', () => setTab('signup'));
+
+        authBtn.addEventListener('click', async function (e) {
+            e.preventDefault();
+            errorMsg.textContent = '';
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                errorMsg.textContent = 'Please fill in all fields.';
+                return;
+            }
+
+            if (currentTab === 'signup') {
+                const name = nameInput.value.trim();
+                if (!name) {
+                    errorMsg.textContent = 'Please enter your name.';
+                    return;
+                }
+                try {
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(cred.user, { displayName: name });
+                    window.location.href = './ChatMat.html';
+                } catch (err) {
+                    errorMsg.textContent = err.message.replace('Firebase: ', '');
+                }
+            } else {
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    window.location.href = './ChatMat.html';
+                } catch (err) {
+                    errorMsg.textContent = err.message.replace('Firebase: ', '');
+                }
+            }
         });
-      })
-      
-       </script>
+
+        document.getElementById('googleBtn').addEventListener('click', function () {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider)
+                .then(() => {
+                    window.location.href = './ChatMat.html';
+                }).catch((error) => {
+                    errorMsg.textContent = error.message.replace('Firebase: ', '');
+                });
+        });
+
+    </script>
 </body>
 </html>
-
