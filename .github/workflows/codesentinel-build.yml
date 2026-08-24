@@ -1,0 +1,143 @@
+name: CodeSentinel Build Fix
+
+on:
+  push:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+
+env:
+  # Pin CodeSentinel CLI to a release tag, not the default branch
+  CODESENTINEL_VERSION: v0.12.1
+
+jobs:
+  build-fix:
+    if: ${{ github.event_name === 'push' && github.actor != 'CodeSentinel Bot' && !contains(github.event.head_commit.message, '[skip ci]') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Use custom PAT if provided (allows pushing to protected branches / triggering workflows)
+          token: ${{ secrets.CODESENTINEL_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Checkout CodeSentinel CLI (pinned tag)
+        uses: actions/checkout@v4
+        with:
+          repository: Dharmik-Lathiya/CodeSentinel_AI
+          ref: ${{ env.CODESENTINEL_VERSION }}
+          path: ${{ runner.temp }}/codesentinel
+          fetch-depth: 1
+
+      - name: Install CodeSentinel CLI dependencies
+        run: npm ci --prefix "${{ runner.temp }}/codesentinel" --omit=dev --ignore-scripts --no-audit --no-fund
+      - name: Install dependencies (includes devDeps for tsc/build)
+        run: npm ci --ignore-scripts --no-audit --no-fund 2>/dev/null || npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Build and auto-fix loop
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          OPENCODE_BASE_URL: ${{ secrets.OPENCODE_BASE_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CODESENTINEL_GITHUB_TOKEN: ${{ secrets.CODESENTINEL_GITHUB_TOKEN }}
+        run: |
+          MAX_ITER=${MAX_ITERATIONS:-5}
+          echo "::group::Build-Fix Loop"
+          for i in $(seq 1 $MAX_ITER); do
+            echo "=== Iteration $i/$MAX_ITER ==="
+
+            FAILED=0
+            npm run build 2>&1 || FAILED=1
+            npm run typecheck 2>&1 || FAILED=1
+
+            if [ $FAILED -eq 0 ]; then
+              echo "✅ Build succeeded on iteration $i"
+              echo "::endgroup::"
+              exit 0
+            fi
+
+            echo "❌ Build failed. Running auto-fix..."
+
+            if [ ! -d "codesentinel" ]; then
+              echo "Cloning CodeSentinel..."
+            fi
+
+            if [ ! -f "codesentinel/dist/index.js" ]; then
+              echo "❌ CodeSentinel CLI (codesentinel/dist/index.js) missing after install — cannot auto-fix"
+              echo "::endgroup::"
+              exit 1
+            fi
+
+            node codesentinel/dist/index.js fix --auto-fix 2>&1 || echo "Fix step completed with warnings"
+
+            node codesentinel/dist/index.js fix --auto-fix 2>&1 || echo "Fix step completed with warnings"
+
+            grep -qxF "node_modules/" .gitignore 2>/dev/null || echo "node_modules/" >> .gitignore
+            git add -A
+            if git diff --cached --quiet; then
+              echo "⚠️ No changes produced by fix — continuing"
+              continue
+            fi
+
+            git config user.email "${CODESENTINEL_GIT_EMAIL:-bot@codesentinel.ai}"
+            git config user.name "${CODESENTINEL_GIT_NAME:-CodeSentinel Bot}"
+            GIT_PUSH_TOKEN="${CODESENTINEL_GITHUB_TOKEN:-${GITHUB_TOKEN}}"
+            git remote set-url origin "https://x-access-token:${GIT_PUSH_TOKEN}@github.com/${{ github.repository }}.git" 2>&1
+            git pull --rebase --autostash origin ${{ github.ref_name }} 2>&1 || true
+            git push origin HEAD:${{ github.ref_name }} 2>&1
+            if [ $? -ne 0 ]; then
+              echo "⚠️ Push failed, fetching latest and rebasing to recover..."
+              git fetch origin ${{ github.ref_name }} 2>&1
+              git rebase origin/${{ github.ref_name }} 2>&1 || { echo "❌ Rebase conflict — aborting fix loop"; git rebase --abort 2>/dev/null || true; echo "::endgroup::"; exit 1; }
+              git push origin HEAD:${{ github.ref_name }} 2>&1
+              echo "✅ Fix pushed to ${{ github.ref_name }}"
+            else
+              echo "✅ Fix pushed to ${{ github.ref_name }}"
+            fi
+            git remote set-url origin "https://x-access-token:${GIT_PUSH_TOKEN}@github.com/${{ github.repository }}.git" 2>&1
+            git push origin HEAD:${{ github.ref_name }} 2>&1
+            echo "✅ Fix pushed to ${{ github.ref_name }}"
+          done
+
+          echo "❌ Build failed after $MAX_ITER iterations"
+          echo "::endgroup::"
+          exit 1
+
+      - name: Notify failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prs = [];
+            try {
+              const { data } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+                head: context.ref.replace('refs/heads/', ''),
+              });
+              prs = data;
+            } catch (err) {
+              core.setFailed(err.message);
+            }
+            if (prs.length > 0) {
+              try {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prs[0].number,
+                  body: "❌ **CodeSentinel Build Fix** failed after auto-fix attempts.\n\nThe build could not be fixed automatically. Please check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+                });
+              } catch (err) {
+                core.setFailed(err.message);
+              }
+            }
