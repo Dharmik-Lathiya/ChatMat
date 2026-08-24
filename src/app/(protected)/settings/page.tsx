@@ -1,26 +1,21 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { updateUserProfile } from "@/services/users";
-import { uploadAvatar } from "@/services/storage";
 import { updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { logout } from "@/services/auth";
-import { Button, Input, Alert, Spinner } from "@/components/ui";
+import { Button, Input, Alert } from "@/components/ui";
 import { Avatar } from "@/components/Avatar";
-import { useToast } from "@/components/ui/Toaster";
 
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState("");
   const [nameLoaded, setNameLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -52,24 +47,6 @@ export default function SettingsPage() {
     }
   }
 
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    setUploading(true);
-    setError("");
-    try {
-      const url = await uploadAvatar(user.uid, file);
-      await updateUserProfile(user.uid, { photoURL: url });
-      await updateProfile(auth.currentUser!, { photoURL: url });
-      await refreshProfile();
-    } catch {
-      setError("Failed to upload avatar.");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
   async function handleLogout() {
     await logout();
     router.replace("/login");
@@ -87,34 +64,11 @@ export default function SettingsPage() {
           <h2 className="text-sm font-semibold text-ink-800">Profile</h2>
 
           <div className="mt-4 flex items-center gap-4">
-            <div className="relative">
-              <Avatar
-                name={profile.displayName}
-                photoURL={profile.photoURL || undefined}
-                size="lg"
-              />
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarChange}
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-500 shadow-sm transition-colors hover:bg-ink-50 hover:text-ink-700"
-              >
-                {uploading ? (
-                  <Spinner className="h-3.5 w-3.5" />
-                ) : (
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
-                    <circle cx="12" cy="13" r="4" />
-                  </svg>
-                )}
-              </button>
-            </div>
+            <Avatar
+              name={profile.displayName}
+              photoURL={profile.photoURL || undefined}
+              size="lg"
+            />
             <div className="min-w-0">
               <p className="text-sm font-medium text-ink-800">
                 {profile.displayName}

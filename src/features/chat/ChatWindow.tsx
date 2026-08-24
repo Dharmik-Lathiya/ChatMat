@@ -392,35 +392,7 @@ export default function ChatWindow({
                         </>
                       )}
                     </div>
-                    {msg.file && (
-                      <div className="mt-1">
-                        {msg.file.type.startsWith("image/") ? (
-                          <img
-                            src={msg.file.url}
-                            alt={msg.file.name}
-                            className="max-w-full rounded-lg"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <a
-                            href={msg.file.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs ${
-                              isOwn
-                                ? "border-brand-400 text-brand-100"
-                                : "border-ink-200 text-ink-600"
-                            }`}
-                          >
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                              <polyline points="14,2 14,8 20,8" />
-                            </svg>
-                            {msg.file.name}
-                          </a>
-                        )}
-                      </div>
-                    )}
+
                     <div
                       className={`mt-0.5 text-[10px] ${
                         isOwn ? "text-right text-brand-200" : "text-ink-400"
