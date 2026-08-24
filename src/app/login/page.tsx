@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [padName, setPadName] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -135,6 +136,45 @@ export default function LoginPage() {
             Forgot password?
           </Link>
         </p>
+
+        {/* Public notepad entry */}
+        <div className="mt-6">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-ink-200" />
+            <span className="text-xs text-ink-400">OR</span>
+            <div className="h-px flex-1 bg-ink-200" />
+          </div>
+          <p className="mt-3 text-center text-xs text-ink-400">
+            Open a public notepad — no login needed
+          </p>
+          <div className="mt-2 flex gap-2">
+            <div className="flex flex-1 items-center rounded-lg border border-ink-200 bg-white px-3 py-2">
+              <span className="shrink-0 text-sm text-ink-400">#</span>
+              <input
+                type="text"
+                placeholder="e.g. my-notes"
+                value={padName}
+                onChange={(e) => setPadName(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ""))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && padName.trim()) {
+                    router.push(`/p/${padName.trim()}`);
+                  }
+                }}
+                className="w-full border-none bg-transparent text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none"
+              />
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (padName.trim()) router.push(`/p/${padName.trim()}`);
+              }}
+              disabled={!padName.trim()}
+              className="shrink-0"
+            >
+              Open
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
