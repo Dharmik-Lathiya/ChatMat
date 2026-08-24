@@ -24,9 +24,13 @@ export async function ensureUserDoc(user: User): Promise<void> {
   const snap = await getDoc(ref);
   if (snap.exists()) return;
 
+  const name = user.displayName || emailToName(user.email);
+  const email = user.email ?? "";
   await setDoc(ref, {
-    displayName: user.displayName || emailToName(user.email),
-    email: user.email ?? "",
+    displayName: name,
+    displayNameLower: name.toLowerCase(),
+    email,
+    emailLower: email.toLowerCase(),
     photoURL: user.photoURL ?? "",
     createdAt: Date.now(),
     updatedAt: Date.now(),
@@ -75,7 +79,11 @@ export async function updateUserProfile(
   uid: string,
   patch: Partial<Pick<UserProfile, "displayName" | "photoURL">>
 ): Promise<void> {
-  await updateDoc(doc(db, "users", uid), { ...patch, updatedAt: Date.now() });
+  const updates: Record<string, unknown> = { ...patch, updatedAt: Date.now() };
+  if (patch.displayName !== undefined) {
+    updates.displayNameLower = patch.displayName.toLowerCase();
+  }
+  await updateDoc(doc(db, "users", uid), updates);
 }
 
 function emailToName(email?: string | null): string {
