@@ -7,6 +7,7 @@ import {
   createNote,
   updateNote,
   deleteNote,
+  shareNote,
 } from "@/services/notes";
 import { Button, Input, Textarea, EmptyState, Modal } from "@/components/ui";
 import { useToast } from "@/components/ui/Toaster";
@@ -104,6 +105,18 @@ export default function NotesView() {
       toast("Failed to create note.");
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleShare(note: Note) {
+    if (!user) return;
+    try {
+      const shareId = await shareNote(user.uid, note.id);
+      const url = `${window.location.origin}/p/${shareId}`;
+      await navigator.clipboard.writeText(url);
+      toast("Share link copied to clipboard!", "success");
+    } catch {
+      toast("Failed to share note.");
     }
   }
 
@@ -301,6 +314,19 @@ export default function NotesView() {
                     <polyline points="21,8 21,21 3,21 3,8" />
                     <rect x="1" y="3" width="22" height="5" rx="1" />
                     <line x1="10" y1="12" x2="14" y2="12" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleShare(selectedNote)}
+                  className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600"
+                  title="Share"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                   </svg>
                 </button>
                 <button

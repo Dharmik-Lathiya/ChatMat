@@ -45,6 +45,7 @@ export interface Message {
   edited?: boolean;
   editedAt?: number;
   deleted?: boolean;
+  reactions?: Record<string, string[]>;
   createdAt: Timestamp | null;
 }
 

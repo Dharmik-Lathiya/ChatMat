@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-ink-50 font-sans text-ink-900 antialiased">
+      <body className="min-h-screen bg-ink-50 font-sans text-ink-900 antialiased dark:bg-ink-50 dark:text-ink-900">
         <Providers>{children}</Providers>
       </body>
     </html>

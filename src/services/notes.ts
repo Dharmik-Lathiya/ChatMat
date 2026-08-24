@@ -66,3 +66,26 @@ export async function countNotes(uid: string): Promise<number> {
   const snap = await getCountFromServer(query(notesCol(uid)));
   return snap.data().count;
 }
+
+/**
+ * Share a note: creates a copy in the sharedNotes collection
+ * that anyone with the link can view.
+ */
+import { getDoc } from "firebase/firestore";
+
+export async function shareNote(
+  uid: string,
+  noteId: string
+): Promise<string> {
+  const noteSnap = await getDoc(doc(db, "users", uid, "notes", noteId));
+  if (!noteSnap.exists()) throw new Error("Note not found");
+  const data = noteSnap.data();
+  const ref = await addDoc(collection(db, "sharedNotes"), {
+    title: data.title || "",
+    content: data.content || "",
+    ownerUid: uid,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  });
+  return ref.id;
+}

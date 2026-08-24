@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { updateUserProfile } from "@/services/users";
 import { updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
@@ -13,6 +14,7 @@ import { Avatar } from "@/components/Avatar";
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
   const router = useRouter();
+  const { theme, toggle } = useTheme();
   const [displayName, setDisplayName] = useState("");
   const [nameLoaded, setNameLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -108,6 +110,29 @@ export default function SettingsPage() {
             <Button onClick={handleSave} loading={saving} className="w-full">
               Save Changes
             </Button>
+          </div>
+        </div>
+
+        {/* Appearance */}
+        <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card">
+          <h2 className="text-sm font-semibold text-ink-800">Appearance</h2>
+          <div className="mt-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-ink-700">Dark mode</p>
+              <p className="text-xs text-ink-400">Switch between light and dark theme</p>
+            </div>
+            <button
+              onClick={toggle}
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                theme === "dark" ? "bg-brand-500" : "bg-ink-300"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  theme === "dark" ? "translate-x-5" : ""
+                }`}
+              />
+            </button>
           </div>
         </div>
 

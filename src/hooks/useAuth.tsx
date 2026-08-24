@@ -12,6 +12,7 @@ import {
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { getUserProfile } from "@/services/users";
+import { startPresence } from "@/services/presence";
 import type { UserProfile } from "@/types";
 
 interface AuthContextValue {
@@ -34,8 +35,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // browserLocalPersistence is Firebase's default; the session survives
-    // reloads and tabs until the user signs out.
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       if (!firebaseUser) setProfile(null);
@@ -43,6 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return unsub;
   }, []);
+
+  // Presence heartbeat
+  useEffect(() => {
+    if (!user) return;
+    const unsub = startPresence(user.uid);
+    return unsub;
+  }, [user]);
 
   useEffect(() => {
     let cancelled = false;

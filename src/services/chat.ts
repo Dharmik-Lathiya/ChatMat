@@ -216,6 +216,28 @@ export async function deleteMessage(
   );
 }
 
+export async function toggleReaction(
+  conversationId: string,
+  messageId: string,
+  uid: string,
+  emoji: string
+): Promise<void> {
+  const ref = doc(db, "conversations", conversationId, "messages", messageId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+  const data = snap.data() as Record<string, unknown>;
+  const reactions = (data.reactions as Record<string, string[]>) || {};
+  const users = reactions[emoji] || [];
+  const hasReacted = users.includes(uid);
+  if (hasReacted) {
+    reactions[emoji] = users.filter((u) => u !== uid);
+    if (reactions[emoji].length === 0) delete reactions[emoji];
+  } else {
+    reactions[emoji] = [...users, uid];
+  }
+  await updateDoc(ref, { reactions });
+}
+
 export function messageTime(msLike?: Timestamp | number | null): number {
   if (!msLike) return 0;
   if (msLike instanceof Timestamp) return msLike.toMillis();

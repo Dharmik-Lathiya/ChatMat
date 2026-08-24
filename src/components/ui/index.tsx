@@ -16,8 +16,8 @@ const variants: Record<Variant, string> = {
   primary:
     "bg-brand-500 text-white hover:bg-brand-600 focus-visible:outline-brand-500 disabled:bg-brand-300",
   secondary:
-    "bg-white text-ink-700 border border-ink-200 hover:bg-ink-50 disabled:text-ink-300",
-  ghost: "bg-transparent text-ink-600 hover:bg-ink-100",
+    "bg-white text-ink-700 border border-ink-200 hover:bg-ink-50 disabled:text-ink-300 dark:bg-ink-100 dark:text-ink-700 dark:hover:bg-ink-200",
+  ghost: "bg-transparent text-ink-600 hover:bg-ink-100 dark:hover:bg-ink-200",
   danger:
     "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 disabled:text-red-200",
 };
@@ -48,7 +48,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   ({ className = "", ...props }, ref) => (
     <input
       ref={ref}
-      className={`block w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:bg-ink-50 ${className}`}
+      className={`block w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:bg-ink-50 dark:border-ink-200 dark:bg-ink-100 dark:text-ink-900 dark:placeholder:text-ink-400 dark:focus:border-brand-500 ${className}`}
       {...props}
     />
   )
@@ -61,7 +61,7 @@ export const Textarea = forwardRef<
 >(({ className = "", ...props }, ref) => (
   <textarea
     ref={ref}
-    className={`block w-full resize-none rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 ${className}`}
+    className={`block w-full resize-none rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-ink-200 dark:bg-ink-100 dark:text-ink-900 dark:placeholder:text-ink-400 ${className}`}
     {...props}
   />
 ));
@@ -169,7 +169,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`w-full ${width} rounded-t-2xl bg-white shadow-pop sm:rounded-2xl`}
+        className={`w-full ${width} rounded-t-2xl bg-white shadow-pop dark:bg-ink-100 sm:rounded-2xl`}
       >
         <div className="flex items-center justify-between border-b border-ink-100 px-5 py-3.5">
           <h2 className="text-sm font-semibold text-ink-900">{title}</h2>

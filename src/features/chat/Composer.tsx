@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { sendMessage } from "@/services/chat";
+import { setTyping } from "@/services/presence";
 import { useToast } from "@/components/ui/Toaster";
 
 export default function Composer({
@@ -52,16 +53,22 @@ export default function Composer({
     }
   }
 
+  function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setText(e.target.value);
+    autoGrow();
+    // Emit typing indicator
+    if (user) {
+      setTyping(conversationId, user.uid, e.target.value.length > 0);
+    }
+  }
+
   return (
     <div className="border-t border-ink-200 bg-white px-4 py-3">
       <div className="flex items-end gap-2">
         <textarea
           ref={textareaRef}
           value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            autoGrow();
-          }}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
           rows={1}

@@ -12,13 +12,16 @@ import {
   deleteMessage,
   messageTime,
   renameGroup,
+  toggleReaction,
 } from "@/services/chat";
 import { getUserProfile } from "@/services/users";
+import { subscribeTyping } from "@/services/presence";
 import { Avatar } from "@/components/Avatar";
 import { Spinner, Modal, Input, Button, EmptyState } from "@/components/ui";
 import { useToast } from "@/components/ui/Toaster";
 import type { Conversation, Message, UserProfile } from "@/types";
 import Composer from "./Composer";
+import EmojiPicker from "./EmojiPicker";
 
 function formatTime(ts: Message["createdAt"]) {
   const ms = messageTime(ts);
@@ -49,6 +52,10 @@ export default function ChatWindow({
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [menuId, setMenuId] = useState<string | null>(null);
+  const [typingUids, setTypingUids] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [reactionMsgId, setReactionMsgId] = useState<string | null>(null);
   const isNearBottomRef = useRef(true);
   const profileCacheRef = useRef<Map<string, UserProfile>>(new Map());
 
@@ -114,6 +121,12 @@ export default function ChatWindow({
       markConversationRead(conversationId, user.uid, lastAt);
     }
   }, [conversationId, user, conversation]);
+
+  // Subscribe to typing indicators
+  useEffect(() => {
+    if (!user) return;
+    return subscribeTyping(conversationId, user.uid, setTypingUids);
+  }, [conversationId, user]);
 
   const handleScroll = useCallback(() => {
     const container = containerRef.current;
@@ -267,6 +280,15 @@ export default function ChatWindow({
           )}
         </div>
 
+        <button
+          onClick={() => setSearchOpen(!searchOpen)}
+          className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-600"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
         {isGroup && (
           <button
             onClick={() => {
@@ -282,6 +304,34 @@ export default function ChatWindow({
           </button>
         )}
       </div>
+
+      {/* Typing indicator */}
+      {typingUids.length > 0 && (
+        <div className="border-b border-ink-100 bg-white px-4 py-1.5 text-xs text-ink-400">
+          {typingUids.length === 1
+            ? `${profiles[typingUids[0]]?.displayName || "Someone"} is typing…`
+            : `${typingUids.length} people are typing…`}
+          <span className="ml-1 inline-flex gap-0.5">
+            <span className="inline-block h-1 w-1 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.3s]" />
+            <span className="inline-block h-1 w-1 animate-bounce rounded-full bg-ink-400 [animation-delay:-0.15s]" />
+            <span className="inline-block h-1 w-1 animate-bounce rounded-full bg-ink-400" />
+          </span>
+        </div>
+      )}
+
+      {/* Search bar */}
+      {searchOpen && (
+        <div className="border-b border-ink-200 bg-white px-4 py-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search messages..."
+            autoFocus
+            className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-1.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none"
+          />
+        </div>
+      )}
 
       {/* Messages */}
       <div
@@ -303,7 +353,10 @@ export default function ChatWindow({
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((msg) => {
+            {messages.filter(msg => 
+              !searchQuery.trim() || 
+              msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+            ).map((msg) => {
               const isOwn = msg.senderId === user?.uid;
               const senderProfile = profiles[msg.senderId];
 
@@ -394,12 +447,71 @@ export default function ChatWindow({
                     </div>
 
                     <div
-                      className={`mt-0.5 text-[10px] ${
-                        isOwn ? "text-right text-brand-200" : "text-ink-400"
+                      className={`mt-0.5 flex items-center gap-1 text-[10px] ${
+                        isOwn ? "justify-end text-brand-200" : "text-ink-400"
                       }`}
                     >
-                      {formatTime(msg.createdAt)}
+                      <span>{formatTime(msg.createdAt)}</span>
+                      {isOwn && (
+                        <span className="text-[11px]">
+                          {(() => {
+                            const msgMs = messageTime(msg.createdAt);
+                            if (!msgMs) return "✓";
+                            const otherReadAt = conversation.readAt?.[conversation.participantIds.find(p => p !== user?.uid) || ""] || 0;
+                            return otherReadAt >= msgMs ? "✓✓" : "✓";
+                          })()}
+                        </span>
+                      )}
                     </div>
+
+                    {/* Reactions display */}
+                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {Object.entries(msg.reactions).map(([emoji, users]) => (
+                          <button
+                            key={emoji}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (user) toggleReaction(conversationId, msg.id, user.uid, emoji);
+                            }}
+                            className={`inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-xs transition-colors ${
+                              users.includes(user?.uid || "")
+                                ? "border-brand-300 bg-brand-50 text-brand-700"
+                                : "border-ink-200 bg-ink-50 text-ink-600 hover:bg-ink-100"
+                            }`}
+                          >
+                            <span>{emoji}</span>
+                            <span>{users.length}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* React button (all messages) */}
+                    {editingId !== msg.id && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setReactionMsgId(reactionMsgId === msg.id ? null : msg.id);
+                        }}
+                        className={`absolute ${isOwn ? "-left-8" : "-right-8"} top-1 rounded p-1 text-ink-400 opacity-0 transition-opacity hover:text-ink-600 group-hover:opacity-100`}
+                      >
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                          <line x1="9" y1="9" x2="9.01" y2="9" />
+                          <line x1="15" y1="9" x2="15.01" y2="9" />
+                        </svg>
+                      </button>
+                    )}
+                    {reactionMsgId === msg.id && (
+                      <EmojiPicker
+                        onSelect={(emoji) => {
+                          if (user) toggleReaction(conversationId, msg.id, user.uid, emoji);
+                        }}
+                        onClose={() => setReactionMsgId(null)}
+                      />
+                    )}
 
                     {/* Own message hover menu */}
                     {isOwn && editingId !== msg.id && (
