@@ -20,15 +20,37 @@ const firebaseConfig: FirebaseOptions = {
 
 function lazyInstance<T extends object>(factory: () => T): T {
   let instance: T | undefined;
+  const resolve = (): T => (instance ??= factory());
   return new Proxy({} as T, {
     get(_target, prop) {
-      instance ??= factory();
-      const value = Reflect.get(instance, prop);
-      return typeof value === "function" ? value.bind(instance) : value;
+      const value = Reflect.get(resolve(), prop);
+      return typeof value === "function" ? value.bind(resolve()) : value;
     },
     has(_target, prop) {
-      instance ??= factory();
-      return Reflect.has(instance, prop);
+      return Reflect.has(resolve(), prop);
+    },
+    getPrototypeOf() {
+      return Reflect.getPrototypeOf(resolve());
+    },
+    setPrototypeOf(_target, proto) {
+      return Reflect.setPrototypeOf(resolve(), proto);
+    },
+    ownKeys() {
+      return Reflect.ownKeys(resolve());
+    },
+    getOwnPropertyDescriptor(_target, prop) {
+      const desc = Reflect.getOwnPropertyDescriptor(resolve(), prop);
+      if (desc) desc.configurable = true;
+      return desc;
+    },
+    defineProperty(_target, prop, desc) {
+      return Reflect.defineProperty(resolve(), prop, desc);
+    },
+    deleteProperty(_target, prop) {
+      return Reflect.deleteProperty(resolve(), prop);
+    },
+    set(_target, prop, value) {
+      return Reflect.set(resolve(), prop, value);
     },
   });
 }
