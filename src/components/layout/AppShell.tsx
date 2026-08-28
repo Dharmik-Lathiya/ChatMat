@@ -48,6 +48,17 @@ const NAV = [
   },
 ];
 
+const ADMIN_NAV = {
+  label: "Admin",
+  href: "/admin",
+  icon: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  ),
+};
+
 function isActive(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === "/dashboard";
   return pathname.startsWith(href);
@@ -57,6 +68,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { profile } = useAuth();
+
+  const isAdmin = profile?.role === "admin";
+  const navItems = isAdmin ? [...NAV.slice(0, 3), ADMIN_NAV, NAV[3]] : NAV;
 
   async function handleLogout() {
     await logout();
@@ -104,7 +118,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <nav className="flex-1 space-y-0.5 px-3">
-            {NAV.map((item) => {
+            {navItems.map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <Link
@@ -144,7 +158,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-ink-200 bg-white/95 backdrop-blur-sm dark:border-ink-200 dark:bg-ink-100/95 md:hidden">
-        {NAV.map((item) => {
+        {navItems.map((item) => {
           const active = isActive(pathname, item.href);
           return (
             <Link

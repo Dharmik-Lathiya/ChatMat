@@ -10,6 +10,11 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     // ---- users -------------------------------------------------------
     // Any signed-in user may read basic profiles (search / participants).
     // Only the owner can create or edit their own profile document.
@@ -48,7 +53,7 @@ service cloud.firestore {
         && request.resource.data.participantIds.size() >= 2
         && request.auth.uid in request.resource.data.participantIds;
 
-      allow get, list: if isParticipant();
+      allow get, list: if isParticipant() || isAdmin();
 
       // Participants may update metadata (lastMessage, updatedAt,
       // readAt, group name) but never change the membership.
@@ -62,7 +67,7 @@ service cloud.firestore {
             && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
         }
 
-        allow read: if isMessageParticipant();
+        allow read: if isMessageParticipant() || isAdmin();
 
         allow create: if isMessageParticipant()
           && request.resource.data.senderId == request.auth.uid

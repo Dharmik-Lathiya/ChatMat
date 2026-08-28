@@ -32,6 +32,7 @@ export async function ensureUserDoc(user: User): Promise<void> {
     email,
     emailLower: email.toLowerCase(),
     photoURL: user.photoURL ?? "",
+    role: "user",
     createdAt: Date.now(),
     updatedAt: Date.now(),
   });

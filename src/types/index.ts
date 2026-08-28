@@ -8,6 +8,8 @@ export interface UserProfile {
   /** Lowercased copies used for search. */
   displayNameLower?: string;
   emailLower?: string;
+  /** 'admin' grants read-only visibility over all conversations. */
+  role?: "admin" | "user";
   createdAt?: number;
   updatedAt?: number;
 }
