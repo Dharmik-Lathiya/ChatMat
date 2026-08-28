@@ -1,7 +1,7 @@
 # Admin View Feature Design
 
 ## Overview
-Add admin functionality to allow a designated admin user (admin@gmail.com) to view all public chat conversations in read-only mode.
+Add admin functionality to allow a designated admin user to view all chat conversations in read-only mode. The admin is identified by the `role: 'admin'` field on their user document — the designated admin account is the Google auth user `dharmiklathiya.it@gmail.com`.
 
 ## Requirements
 - Admin user can view ALL conversations (both direct and group)
@@ -127,7 +127,7 @@ Create `src/features/admin/AdminChatView.tsx`:
 3. Create admin service functions
 4. Add admin link to sidebar
 5. Create admin page and components
-6. Test with admin@gmail.com user
+6. Test with the admin user (dharmiklathiya.it@gmail.com, role set to 'admin')
 
 ## Security Considerations
 - Admin role must be set in Firestore manually (no self-promotion)

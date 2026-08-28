@@ -22,8 +22,10 @@ function formatTime(ts: Message["createdAt"]) {
 
 export default function AdminChatView({
   conversationId,
+  onBack,
 }: {
   conversationId: string;
+  onBack?: () => void;
 }) {
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -111,7 +113,7 @@ export default function AdminChatView({
       {/* Header */}
       <div className="flex shrink-0 items-center gap-3 border-b border-ink-200 bg-white px-4 py-3">
         <button
-          onClick={() => router.push("/admin")}
+          onClick={onBack ? onBack : () => router.push("/admin")}
           className="mr-1 rounded-lg p-1 text-ink-500 hover:bg-ink-100 md:hidden"
           aria-label="Back to admin"
         >

@@ -1,16 +1,24 @@
 import {
+  collection,
   doc,
   getDoc,
-  setDoc,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
   serverTimestamp,
+  setDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 
 export interface PublicNote {
   slug: string;
+  title?: string;
   content: string;
-  createdAt?: ReturnType<typeof serverTimestamp>;
-  updatedAt?: ReturnType<typeof serverTimestamp>;
+  createdAt?: Timestamp | null;
+  updatedAt?: Timestamp | null;
 }
 
 const col = "publicNotes";
@@ -60,3 +68,24 @@ export async function slugExists(slug: string): Promise<boolean> {
 }
 
 export { slugify };
+
+/** Realtime list of all public notes (newest first). */
+export function subscribePublicNotes(
+  onChange: (notes: PublicNote[]) => void,
+  onError: (error: unknown) => void
+): () => void {
+  const q = query(
+    collection(db, col),
+    orderBy("updatedAt", "desc"),
+    limit(200)
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      onChange(
+        snap.docs.map((d) => ({ slug: d.id, ...d.data() })) as PublicNote[]
+      );
+    },
+    onError
+  );
+}
