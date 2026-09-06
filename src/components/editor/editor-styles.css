@@ -1,0 +1,100 @@
+.tiptap {
+  outline: none;
+  min-height: 200px;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #acacbe;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid #d9d9e3;
+  padding-left: 1rem;
+  margin-left: 0;
+  color: #565869;
+}
+
+.tiptap pre {
+  background: #1a1a2e;
+  color: #f7f7f8;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.tiptap code {
+  background: #d9d9e3;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
+.tiptap pre code {
+  background: none;
+  padding: 0;
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tiptap th,
+.tiptap td {
+  border: 1px solid #d9d9e3;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.tiptap th {
+  background: #f7f7f8;
+  font-weight: bold;
+}
+
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tiptap ul[data-type="taskList"] li input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+}

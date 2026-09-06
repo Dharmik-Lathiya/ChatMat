@@ -9,7 +9,8 @@ import {
   deleteNote,
   shareNote,
 } from "@/services/notes";
-import { Button, Input, Textarea, EmptyState, Modal } from "@/components/ui";
+import { Button, Input, EmptyState, Modal } from "@/components/ui";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { useToast } from "@/components/ui/Toaster";
 import type { Note } from "@/types";
 
@@ -348,11 +349,10 @@ export default function NotesView() {
                 placeholder="Untitled"
                 className="mb-2 w-full border-none bg-transparent text-xl font-semibold text-ink-900 placeholder:text-ink-300 focus:outline-none"
               />
-              <Textarea
-                value={editContent}
-                onChange={(e) => handleContentChange(e.target.value)}
-                placeholder="Start writing..."
-                className="min-h-[300px] border-none bg-transparent px-0 text-sm text-ink-700 placeholder:text-ink-300 focus:outline-none focus:ring-0"
+              <TipTapEditor
+                content={editContent}
+                onChange={handleContentChange}
+                placeholder="Start writing your note..."
               />
             </div>
           </>
