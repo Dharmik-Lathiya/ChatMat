@@ -9,10 +9,7 @@ export const metadata: Metadata = {
   title: "Chatmat",
   description: "Chat + Notes workspace",
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
+    icon: "/favicon.svg",
   },
 };
 
@@ -23,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-ink-50 font-sans text-ink-900 antialiased dark:bg-ink-50 dark:text-ink-900">
+      <body className="min-h-screen bg-ink-50 font-sans text-ink-900 antialiased dark:bg-black dark:text-white">
         <Providers>{children}</Providers>
       </body>
     </html>

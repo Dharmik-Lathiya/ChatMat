@@ -79,9 +79,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-ink-50 dark:bg-ink-50 md:flex-row">
+    <div className="flex h-screen flex-col bg-white dark:bg-black md:flex-row">
       {/* Mobile top bar */}
-      <header className="flex items-center justify-between border-b border-ink-200 bg-white px-4 py-2.5 dark:border-ink-200 dark:bg-ink-100 md:hidden">
+      <header className="flex items-center justify-between border-b border-ink-200 bg-white px-4 py-2.5 dark:border-gray-800 dark:bg-black md:hidden">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500 text-[11px] font-bold text-white">
             C
@@ -111,7 +111,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar */}
-        <aside className="hidden w-64 shrink-0 flex-col border-r border-ink-200 bg-white dark:border-ink-200 dark:bg-ink-100 md:flex">
+        <aside className="hidden w-64 shrink-0 flex-col border-r border-ink-200 bg-white dark:border-gray-800 dark:bg-black md:flex">
           <div className="flex items-center gap-2.5 px-5 py-5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white">
               C
@@ -162,7 +162,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-ink-200 bg-white/95 backdrop-blur-sm dark:border-ink-200 dark:bg-ink-100/95 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-ink-200 bg-white/95 backdrop-blur-sm dark:border-gray-800 dark:bg-black/95 md:hidden">
         {navItems.map((item) => {
           const active = isActive(pathname, item.href);
           return (

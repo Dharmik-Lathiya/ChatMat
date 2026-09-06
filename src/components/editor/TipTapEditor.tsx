@@ -3,6 +3,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
 import TaskList from "@tiptap/extension-task-list";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorToolbar } from "./EditorToolbar";
@@ -25,6 +26,7 @@ export function TipTapEditor({
       Table.configure({
         resizable: true,
       }),
+      TableRow,
       TaskList,
       Placeholder.configure({
         placeholder,
