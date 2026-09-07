@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { logout } from "@/services/auth";
 import { Avatar } from "@/components/Avatar";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const NAV = [
   {
@@ -89,7 +88,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span className="text-[15px] font-bold text-ink-900">Chatmat</span>
         </Link>
         <div className="flex items-center gap-2">
-          <ThemeToggle />
           <Avatar
             name={profile?.displayName || "?"}
             photoURL={profile?.photoURL || undefined}
@@ -140,9 +138,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="border-t border-ink-100 px-3 py-3 dark:border-ink-200">
-          <div className="flex items-center gap-1 px-3 pb-2">
-            <ThemeToggle />
-          </div>
             <button
               onClick={handleLogout}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-700"

@@ -62,8 +62,8 @@ export default function SettingsPage() {
         <h1 className="text-xl font-bold text-ink-900">Settings</h1>
 
         {/* Profile section */}
-        <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card">
-          <h2 className="text-sm font-semibold text-ink-800">Profile</h2>
+        <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card dark:border-gray-800 dark:bg-black">
+          <h2 className="text-sm font-semibold text-ink-800 dark:text-white">Profile</h2>
 
           <div className="mt-4 flex items-center gap-4">
             <Avatar
@@ -114,12 +114,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Appearance */}
-        <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card">
-          <h2 className="text-sm font-semibold text-ink-800">Appearance</h2>
+        <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card dark:border-gray-800 dark:bg-black">
+          <h2 className="text-sm font-semibold text-ink-800 dark:text-white">Appearance</h2>
           <div className="mt-3 flex items-center justify-between">
             <div>
-              <p className="text-sm text-ink-700">Dark mode</p>
-              <p className="text-xs text-ink-400">Switch between light and dark theme</p>
+              <p className="text-sm text-ink-700 dark:text-gray-300">Dark mode</p>
+              <p className="text-xs text-ink-400 dark:text-gray-500">Switch between light and dark theme</p>
             </div>
             <button
               onClick={toggle}
@@ -137,8 +137,8 @@ export default function SettingsPage() {
         </div>
 
         {/* Account section */}
-        <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card">
-          <h2 className="text-sm font-semibold text-ink-800">Account</h2>
+        <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card dark:border-gray-800 dark:bg-black">
+          <h2 className="text-sm font-semibold text-ink-800 dark:text-white">Account</h2>
           <p className="mt-1 text-xs text-ink-500">
             Signed in as {profile.email}
           </p>
