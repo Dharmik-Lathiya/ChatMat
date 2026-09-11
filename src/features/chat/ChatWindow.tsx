@@ -223,10 +223,10 @@ export default function ChatWindow({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex shrink-0 items-center gap-3 border-b border-ink-200 bg-white px-4 py-3">
+      <div className="flex shrink-0 items-center gap-3 border-b border-ink-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-black">
         <Link
           href="/chat"
-          className="mr-1 rounded-lg p-1 text-ink-500 hover:bg-ink-100 md:hidden"
+          className="mr-1 rounded-lg p-1 text-ink-500 hover:bg-ink-100 dark:text-gray-400 dark:hover:bg-white/10 md:hidden"
         >
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15,18 9,12 15,6" />
@@ -261,7 +261,7 @@ export default function ChatWindow({
         />
 
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-sm font-semibold text-ink-900">
+          <h2 className="truncate text-sm font-semibold text-ink-900 dark:text-white">
             {isGroup
               ? conversation.name || "Group"
               : (() => {
@@ -307,7 +307,7 @@ export default function ChatWindow({
 
       {/* Typing indicator */}
       {typingUids.length > 0 && (
-        <div className="border-b border-ink-100 bg-white px-4 py-1.5 text-xs text-ink-400">
+        <div className="border-b border-ink-100 bg-white px-4 py-1.5 text-xs text-ink-400 dark:border-gray-800 dark:bg-black dark:text-gray-500">
           {typingUids.length === 1
             ? `${profiles[typingUids[0]]?.displayName || "Someone"} is typing…`
             : `${typingUids.length} people are typing…`}
@@ -321,14 +321,14 @@ export default function ChatWindow({
 
       {/* Search bar */}
       {searchOpen && (
-        <div className="border-b border-ink-200 bg-white px-4 py-2">
+        <div className="border-b border-ink-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-black">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search messages..."
             autoFocus
-            className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-1.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none"
+            className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-1.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
           />
         </div>
       )}
@@ -340,7 +340,7 @@ export default function ChatWindow({
         className="flex-1 overflow-y-auto px-4 py-4"
       >
         {visibleCount > messages.length && messages.length > 0 && (
-          <div className="mb-4 text-center text-xs text-ink-400">
+          <div className="mb-4 text-center text-xs text-ink-400 dark:text-gray-500">
             Loaded all messages
           </div>
         )}
@@ -366,7 +366,7 @@ export default function ChatWindow({
                     key={msg.id}
                     className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
                   >
-                    <p className="text-xs italic text-ink-400">
+                    <p className="text-xs italic text-ink-400 dark:text-gray-500">
                       Message deleted
                     </p>
                   </div>
@@ -391,7 +391,7 @@ export default function ChatWindow({
                     }`}
                   >
                     {!isOwn && (
-                      <span className="mb-0.5 block text-[11px] font-medium text-ink-500">
+                      <span className="mb-0.5 block text-[11px] font-medium text-ink-500 dark:text-gray-400">
                         {senderProfile?.displayName || "User"}
                       </span>
                     )}
@@ -399,7 +399,7 @@ export default function ChatWindow({
                       className={`rounded-2xl px-3.5 py-2 text-sm ${
                         isOwn
                           ? "rounded-br-md bg-brand-500 text-white"
-                          : "rounded-bl-md bg-ink-100 text-ink-800"
+                          : "rounded-bl-md bg-ink-100 text-ink-800 dark:bg-gray-800 dark:text-gray-100"
                       }`}
                     >
                       {editingId === msg.id ? (
@@ -436,7 +436,7 @@ export default function ChatWindow({
                           {msg.edited && (
                             <span
                               className={`ml-1 text-[10px] ${
-                                isOwn ? "text-brand-200" : "text-ink-400"
+                                isOwn ? "text-brand-200" : "text-ink-400 dark:text-gray-500"
                               }`}
                             >
                               (edited)
@@ -448,7 +448,7 @@ export default function ChatWindow({
 
                     <div
                       className={`mt-0.5 flex items-center gap-1 text-[10px] ${
-                        isOwn ? "justify-end text-brand-200" : "text-ink-400"
+                        isOwn ? "justify-end text-brand-200" : "text-ink-400 dark:text-gray-500"
                       }`}
                     >
                       <span>{formatTime(msg.createdAt)}</span>
@@ -476,8 +476,8 @@ export default function ChatWindow({
                             }}
                             className={`inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-xs transition-colors ${
                               users.includes(user?.uid || "")
-                                ? "border-brand-300 bg-brand-50 text-brand-700"
-                                : "border-ink-200 bg-ink-50 text-ink-600 hover:bg-ink-100"
+                                ? "border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-500/50 dark:bg-brand-900/20 dark:text-brand-400"
+                                : "border-ink-200 bg-ink-50 text-ink-600 hover:bg-ink-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                             }`}
                           >
                             <span>{emoji}</span>
@@ -531,7 +531,7 @@ export default function ChatWindow({
                     )}
                     {isOwn && menuId === msg.id && (
                       <div
-                        className="absolute -left-36 top-0 z-10 rounded-lg border border-ink-200 bg-white shadow-pop"
+                        className="absolute -left-36 top-0 z-10 rounded-lg border border-ink-200 bg-white shadow-pop dark:border-gray-700 dark:bg-gray-900"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
@@ -540,7 +540,7 @@ export default function ChatWindow({
                             setEditText(msg.text);
                             setMenuId(null);
                           }}
-                          className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50"
+                          className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50 dark:text-gray-300 dark:hover:bg-white/5"
                         >
                           Edit
                         </button>
@@ -549,7 +549,7 @@ export default function ChatWindow({
                             handleDelete(msg.id);
                             setMenuId(null);
                           }}
-                          className="block w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50"
+                          className="block w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
                         >
                           Delete
                         </button>

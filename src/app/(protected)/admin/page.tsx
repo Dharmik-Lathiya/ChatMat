@@ -29,14 +29,14 @@ export default function AdminPage() {
     <div className="flex h-full">
       {/* List pane */}
       <div
-        className={`flex h-full w-full flex-col border-r border-ink-200 md:w-80 ${
+        className={`flex h-full w-full flex-col border-r border-ink-200 dark:border-gray-800 md:w-80 ${
           mobileView === "chat" && selected && tab === "conversations"
             ? "hidden md:flex"
             : "flex"
         }`}
       >
         {/* Tabs */}
-        <div className="flex border-b border-ink-200">
+        <div className="flex border-b border-ink-200 dark:border-gray-800">
           <button
             onClick={() => {
               setTab("conversations");
@@ -44,8 +44,8 @@ export default function AdminPage() {
             }}
             className={`flex-1 px-3 py-2.5 text-xs font-semibold transition-colors ${
               tab === "conversations"
-                ? "border-b-2 border-brand-500 text-brand-700"
-                : "text-ink-500 hover:text-ink-700"
+                ? "border-b-2 border-brand-500 text-brand-700 dark:text-brand-400"
+                : "text-ink-500 hover:text-ink-700 dark:text-gray-400 dark:hover:text-gray-200"
             }`}
           >
             Conversations
@@ -58,8 +58,8 @@ export default function AdminPage() {
             }}
             className={`flex-1 px-3 py-2.5 text-xs font-semibold transition-colors ${
               tab === "notes"
-                ? "border-b-2 border-brand-500 text-brand-700"
-                : "text-ink-500 hover:text-ink-700"
+                ? "border-b-2 border-brand-500 text-brand-700 dark:text-brand-400"
+                : "text-ink-500 hover:text-ink-700 dark:text-gray-400 dark:hover:text-gray-200"
             }`}
           >
             Public Notes

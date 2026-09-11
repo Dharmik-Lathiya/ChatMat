@@ -10,6 +10,8 @@ export interface UserProfile {
   emailLower?: string;
   /** 'admin' grants read-only visibility over all conversations. */
   role?: "admin" | "user";
+  /** User's preferred theme, persisted so it syncs across devices. */
+  theme?: "light" | "dark";
   createdAt?: number;
   updatedAt?: number;
 }

@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { logout } from "@/services/auth";
 import { Avatar } from "@/components/Avatar";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useThemeSync } from "@/hooks/useThemeSync";
 
 const NAV = [
   {
@@ -68,6 +70,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { profile } = useAuth();
+  const { toggleAndSave } = useThemeSync();
 
   const isAdmin = profile?.role === "admin";
   const navItems = isAdmin ? [...NAV.slice(0, 3), ADMIN_NAV, NAV[3]] : NAV;
@@ -82,12 +85,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile top bar */}
       <header className="flex items-center justify-between border-b border-ink-200 bg-white px-4 py-2.5 dark:border-gray-800 dark:bg-black md:hidden">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500 text-[11px] font-bold text-white">
-            C
-          </div>
-          <span className="text-[15px] font-bold text-ink-900">Chatmat</span>
+          <span className="text-[15px] font-extrabold tracking-tight text-ink-900 dark:text-white">
+            Chat<span className="text-brand-500">mat</span>
+          </span>
         </Link>
         <div className="flex items-center gap-2">
+          <ThemeToggle onToggle={toggleAndSave} />
           <Avatar
             name={profile?.displayName || "?"}
             photoURL={profile?.photoURL || undefined}
@@ -95,7 +98,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           />
           <button
             onClick={handleLogout}
-            className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600"
+            className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600 dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-gray-300"
             aria-label="Logout"
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -111,10 +114,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Desktop sidebar */}
         <aside className="hidden w-64 shrink-0 flex-col border-r border-ink-200 bg-white dark:border-gray-800 dark:bg-black md:flex">
           <div className="flex items-center gap-2.5 px-5 py-5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold text-white">
-              C
-            </div>
-            <span className="text-lg font-bold text-ink-900">Chatmat</span>
+            <span className="text-lg font-extrabold tracking-tight text-ink-900 dark:text-white">
+              Chat<span className="text-brand-500">mat</span>
+            </span>
           </div>
 
           <nav className="flex-1 space-y-0.5 px-3">
@@ -127,7 +129,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     active
                     ? "bg-brand-50 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400"
-                    : "text-ink-600 hover:bg-ink-50 hover:text-ink-900 dark:text-ink-500 dark:hover:bg-ink-200"
+                    : "text-ink-600 hover:bg-ink-50 hover:text-ink-900 dark:text-ink-500 dark:hover:bg-white/10 dark:hover:text-ink-200"
                 }`}
               >
                 {item.icon}
@@ -137,10 +139,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="border-t border-ink-100 px-3 py-3 dark:border-ink-200">
+        <div className="border-t border-ink-100 px-3 py-3 dark:border-white/10">
+          <div className="flex items-center justify-between">
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-700"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200"
             >
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
@@ -149,11 +152,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </svg>
               Logout
             </button>
+            <ThemeToggle onToggle={toggleAndSave} />
           </div>
-        </aside>
+        </div>
+      </aside>
 
         {/* Main content */}
-        <main className="flex-1 overflow-hidden">{children}</main>
+        <main className="flex-1 overflow-hidden pb-16 md:pb-0">{children}</main>
       </div>
 
       {/* Mobile bottom tab bar */}
@@ -165,7 +170,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               href={item.href}
               className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
-                active ? "text-brand-600" : "text-ink-400"
+                active ? "text-brand-600 dark:text-brand-400" : "text-ink-400 dark:text-gray-500"
               }`}
             >
               {item.icon}

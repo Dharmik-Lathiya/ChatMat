@@ -92,10 +92,10 @@ export default function DashboardPage() {
     <div className="flex h-full flex-col overflow-y-auto pb-20 md:pb-0">
       <div className="px-6 py-6">
         {/* Greeting */}
-        <h1 className="text-2xl font-bold text-ink-900">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-white">
           Hello, {profile?.displayName || user.displayName || "there"} 👋
         </h1>
-        <p className="mt-1 text-sm text-ink-500">
+        <p className="mt-1 text-sm text-ink-500 dark:text-gray-400">
           Welcome to your Chatmat workspace.
         </p>
 
@@ -107,19 +107,19 @@ export default function DashboardPage() {
           <>
             {/* Stat cards */}
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="rounded-xl border border-ink-200 bg-white p-4 shadow-card">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
+              <div className="rounded-xl border border-ink-200 bg-white p-4 shadow-card dark:border-gray-800 dark:bg-black">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-400 dark:text-gray-500">
                   Conversations
                 </p>
-                <p className="mt-1 text-2xl font-bold text-ink-900">
+                <p className="mt-1 text-2xl font-bold text-ink-900 dark:text-white">
                   {convCount}
                 </p>
               </div>
-              <div className="rounded-xl border border-ink-200 bg-white p-4 shadow-card">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
+              <div className="rounded-xl border border-ink-200 bg-white p-4 shadow-card dark:border-gray-800 dark:bg-black">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-400 dark:text-gray-500">
                   Notes
                 </p>
-                <p className="mt-1 text-2xl font-bold text-ink-900">
+                <p className="mt-1 text-2xl font-bold text-ink-900 dark:text-white">
                   {noteCount}
                 </p>
               </div>
@@ -129,13 +129,13 @@ export default function DashboardPage() {
             <div className="mt-6 flex gap-3">
               <Link
                 href="/chat"
-                className="flex-1 rounded-xl border border-ink-200 bg-white px-4 py-3 text-center text-sm font-medium text-ink-700 shadow-card transition-colors hover:bg-ink-50"
+                className="flex-1 rounded-xl border border-ink-200 bg-white px-4 py-3 text-center text-sm font-medium text-ink-700 shadow-card transition-colors hover:bg-ink-50 dark:border-gray-800 dark:bg-black dark:text-gray-200 dark:hover:bg-white/5"
               >
                 💬 New Chat
               </Link>
               <Link
                 href="/notes"
-                className="flex-1 rounded-xl border border-ink-200 bg-white px-4 py-3 text-center text-sm font-medium text-ink-700 shadow-card transition-colors hover:bg-ink-50"
+                className="flex-1 rounded-xl border border-ink-200 bg-white px-4 py-3 text-center text-sm font-medium text-ink-700 shadow-card transition-colors hover:bg-ink-50 dark:border-gray-800 dark:bg-black dark:text-gray-200 dark:hover:bg-white/5"
               >
                 📝 New Note
               </Link>
@@ -144,13 +144,13 @@ export default function DashboardPage() {
             {/* Recent conversations */}
             <div className="mt-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-ink-800">
+                <h2 className="text-sm font-semibold text-ink-800 dark:text-white">
                   Recent Chats
                 </h2>
                 {conversations.length > 0 && (
                   <Link
                     href="/chat"
-                    className="text-xs font-medium text-brand-600 hover:text-brand-700"
+                    className="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
                   >
                     View all
                   </Link>
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                       <Link
                         key={c.id}
                         href={`/chat/${c.id}`}
-                        className="flex items-center gap-3 rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card transition-colors hover:bg-ink-50"
+                        className="flex items-center gap-3 rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card transition-colors hover:bg-ink-50 dark:border-gray-800 dark:bg-black dark:hover:bg-white/5"
                       >
                         <Avatar
                           name={title}
@@ -206,15 +206,15 @@ export default function DashboardPage() {
                           size="sm"
                         />
                         <div className="min-w-0 flex-1">
-                          <h4 className="truncate text-sm font-medium text-ink-800">
+                          <h4 className="truncate text-sm font-medium text-ink-800 dark:text-gray-200">
                             {title}
                           </h4>
-                          <p className="truncate text-xs text-ink-400">
+                          <p className="truncate text-xs text-ink-400 dark:text-gray-500">
                             {c.lastMessage?.text || "No messages"}
                           </p>
                         </div>
                         {c.lastMessage && (
-                          <span className="shrink-0 text-[10px] text-ink-400">
+                          <span className="shrink-0 text-[10px] text-ink-400 dark:text-gray-500">
                             {relativeTime(c.lastMessage.at)}
                           </span>
                         )}
@@ -228,13 +228,13 @@ export default function DashboardPage() {
             {/* Recent notes */}
             <div className="mt-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-ink-800">
+                <h2 className="text-sm font-semibold text-ink-800 dark:text-white">
                   Recent Notes
                 </h2>
                 {notes.length > 0 && (
                   <Link
                     href="/notes"
-                    className="text-xs font-medium text-brand-600 hover:text-brand-700"
+                    className="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
                   >
                     View all
                   </Link>
@@ -259,12 +259,12 @@ export default function DashboardPage() {
                     <Link
                       key={n.id}
                       href="/notes"
-                      className="block rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card transition-colors hover:bg-ink-50"
+                      className="block rounded-xl border border-ink-200 bg-white px-4 py-3 shadow-card transition-colors hover:bg-ink-50 dark:border-gray-800 dark:bg-black dark:hover:bg-white/5"
                     >
-                      <h4 className="truncate text-sm font-medium text-ink-800">
+                      <h4 className="truncate text-sm font-medium text-ink-800 dark:text-gray-200">
                         {n.title || "Untitled"}
                       </h4>
-                      <p className="mt-0.5 truncate text-xs text-ink-400">
+                      <p className="mt-0.5 truncate text-xs text-ink-400 dark:text-gray-500">
                         {n.content || "Empty note"} · {relativeTime(n.updatedAt)}
                       </p>
                     </Link>

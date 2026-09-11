@@ -87,6 +87,17 @@ export async function updateUserProfile(
   await updateDoc(doc(db, "users", uid), updates);
 }
 
+/** Persist the user's theme preference to Firestore. */
+export async function updateUserTheme(
+  uid: string,
+  theme: "light" | "dark"
+): Promise<void> {
+  await updateDoc(doc(db, "users", uid), {
+    theme,
+    updatedAt: Date.now(),
+  });
+}
+
 function emailToName(email?: string | null): string {
   if (!email) return "New user";
   const name = email.split("@")[0].replace(/[._-]+/g, " ");

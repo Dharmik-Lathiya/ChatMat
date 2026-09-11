@@ -174,11 +174,11 @@ export default function NotesView() {
     <div className="flex h-full">
       {/* Note list */}
       <div
-        className={`flex h-full w-full flex-col border-r border-ink-200 md:w-80 ${
+        className={`flex h-full w-full flex-col border-r border-ink-200 dark:border-gray-800 md:w-80 ${
           mobileEditor && selectedId ? "hidden md:flex" : "flex"
         }`}
       >
-        <div className="flex items-center gap-2 border-b border-ink-200 px-4 py-3">
+        <div className="flex items-center gap-2 border-b border-ink-200 px-4 py-3 dark:border-gray-800">
           <Input
             placeholder="Search notes..."
             value={search}
@@ -187,11 +187,11 @@ export default function NotesView() {
           />
           <button
             onClick={() => setShowArchived(!showArchived)}
-            className={`shrink-0 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-              showArchived
-                ? "border-brand-300 bg-brand-50 text-brand-700"
-                : "border-ink-200 text-ink-500 hover:bg-ink-50"
-            }`}
+className={`shrink-0 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                showArchived
+                  ? "border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-500/50 dark:bg-brand-900/20 dark:text-brand-400"
+                  : "border-ink-200 text-ink-500 hover:bg-ink-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/5"
+              }`}
           >
             {showArchived ? "Archived" : "Active"}
           </button>
@@ -210,7 +210,7 @@ export default function NotesView() {
         <div className="flex-1 overflow-y-auto">
           {pinned.length > 0 && (
             <div className="px-3 pt-2 pb-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-400">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-400 dark:text-gray-500">
                 Pinned
               </span>
             </div>
@@ -231,7 +231,7 @@ export default function NotesView() {
           ))}
           {others.length > 0 && (
             <div className="px-3 pt-2 pb-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-400">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-400 dark:text-gray-500">
                 {pinned.length > 0 ? "Others" : "Notes"}
               </span>
             </div>
@@ -251,7 +251,7 @@ export default function NotesView() {
             />
           ))}
           {filtered.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-ink-400">
+            <div className="px-4 py-8 text-center text-sm text-ink-400 dark:text-gray-500">
               {search ? "No notes match your search." : "No notes yet."}
             </div>
           )}
@@ -267,29 +267,29 @@ export default function NotesView() {
         {selectedNote ? (
           <>
             {/* Mobile back button */}
-            <div className="flex items-center gap-2 border-b border-ink-200 px-4 py-2 md:hidden">
+            <div className="flex items-center gap-2 border-b border-ink-200 px-4 py-2 md:hidden dark:border-gray-800">
               <button
                 onClick={() => setMobileEditor(false)}
-                className="rounded-lg p-1 text-ink-500 hover:bg-ink-100"
+                className="rounded-lg p-1 text-ink-500 hover:bg-ink-100 dark:text-gray-400 dark:hover:bg-white/10"
               >
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="15,18 9,12 15,6" />
                 </svg>
               </button>
-              <span className="text-sm font-medium text-ink-700">Back</span>
+              <span className="text-sm font-medium text-ink-700 dark:text-gray-300">Back</span>
               {saveStatus && (
-                <span className="ml-auto text-xs text-ink-400">
+                <span className="ml-auto text-xs text-ink-400 dark:text-gray-500">
                   {saveStatus === "saving" ? "Saving…" : "Saved"}
                 </span>
               )}
             </div>
-            <div className="hidden items-center justify-between border-b border-ink-200 px-6 py-3 md:flex">
+            <div className="hidden items-center justify-between border-b border-ink-200 px-6 py-3 md:flex dark:border-gray-800">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-ink-400">
+                <span className="text-xs text-ink-400 dark:text-gray-500">
                   Updated {relativeTime(selectedNote.updatedAt)}
                 </span>
                 {saveStatus && (
-                  <span className="text-xs text-ink-400">
+                  <span className="text-xs text-ink-400 dark:text-gray-500">
                     {saveStatus === "saving" ? "Saving…" : "Saved"}
                   </span>
                 )}
@@ -347,7 +347,7 @@ export default function NotesView() {
                 value={editTitle}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Untitled"
-                className="mb-2 w-full border-none bg-transparent text-xl font-semibold text-ink-900 placeholder:text-ink-300 focus:outline-none"
+                className="mb-2 w-full border-none bg-transparent text-xl font-semibold text-ink-900 placeholder:text-ink-300 focus:outline-none dark:text-white dark:placeholder:text-gray-600"
               />
               <TipTapEditor
                 content={editContent}
@@ -412,16 +412,16 @@ function NoteRow({
   return (
     <div
       onClick={onClick}
-      className={`group relative cursor-pointer border-b border-ink-100 px-3 py-2.5 transition-colors ${
-        selected ? "bg-brand-50" : "hover:bg-ink-50"
+      className={`group relative cursor-pointer border-b border-ink-100 px-3 py-2.5 transition-colors dark:border-gray-800 ${
+        selected ? "bg-brand-50 dark:bg-brand-900/20" : "hover:bg-ink-50 dark:hover:bg-white/5"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h4 className="truncate text-sm font-medium text-ink-800">
+          <h4 className="truncate text-sm font-medium text-ink-800 dark:text-gray-200">
             {note.title || "Untitled"}
           </h4>
-          <p className="mt-0.5 truncate text-xs text-ink-400">
+          <p className="mt-0.5 truncate text-xs text-ink-400 dark:text-gray-500">
             {note.content || "Empty note"}
           </p>
         </div>
@@ -447,7 +447,7 @@ function NoteRow({
       </div>
       {menuOpen && (
         <div
-          className="absolute right-2 top-8 z-10 rounded-lg border border-ink-200 bg-white shadow-pop"
+          className="absolute right-2 top-8 z-10 rounded-lg border border-ink-200 bg-white shadow-pop dark:border-gray-700 dark:bg-gray-900"
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -455,7 +455,7 @@ function NoteRow({
               onPin();
               setMenuOpen(false);
             }}
-            className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50"
+            className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50 dark:text-gray-300 dark:hover:bg-white/5"
           >
             {note.pinned ? "Unpin" : "Pin"}
           </button>
@@ -464,7 +464,7 @@ function NoteRow({
               onArchive();
               setMenuOpen(false);
             }}
-            className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50"
+            className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50 dark:text-gray-300 dark:hover:bg-white/5"
           >
             {note.archived ? "Unarchive" : "Archive"}
           </button>
@@ -473,7 +473,7 @@ function NoteRow({
               onDelete();
               setMenuOpen(false);
             }}
-            className="block w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50"
+            className="block w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
           >
             Delete
           </button>

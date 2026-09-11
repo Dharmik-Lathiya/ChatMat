@@ -78,11 +78,11 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
         {label}
       </span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-ink-400">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs text-ink-400 dark:text-gray-500">{hint}</span>}
     </label>
   );
 }
@@ -125,10 +125,10 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-6 py-14 text-center">
-      {icon && <div className="text-ink-300">{icon}</div>}
-      <h3 className="text-sm font-semibold text-ink-800">{title}</h3>
+      {icon && <div className="text-ink-300 dark:text-gray-600">{icon}</div>}
+      <h3 className="text-sm font-semibold text-ink-800 dark:text-white">{title}</h3>
       {description && (
-        <p className="max-w-sm text-sm text-ink-500">{description}</p>
+        <p className="max-w-sm text-sm text-ink-500 dark:text-gray-400">{description}</p>
       )}
       {action && <div className="mt-3">{action}</div>}
     </div>
@@ -176,7 +176,7 @@ export function Modal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+            className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
           >
             <svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor">
               <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
@@ -193,9 +193,9 @@ export function Modal({
 
 export function Alert({ tone = "error", children }: { tone?: "error" | "info" | "success"; children: ReactNode }) {
   const tones = {
-    error: "bg-red-50 text-red-700 border-red-100",
-    info: "bg-sky-50 text-sky-700 border-sky-100",
-    success: "bg-brand-50 text-brand-700 border-brand-100",
+    error: "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
+    info: "bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800",
+    success: "bg-brand-50 text-brand-700 border-brand-100 dark:bg-brand-900/30 dark:text-brand-400 dark:border-brand-800",
   };
   return (
     <div className={`rounded-lg border px-3 py-2 text-sm ${tones[tone]}`} role="alert">

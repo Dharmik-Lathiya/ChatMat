@@ -111,10 +111,10 @@ export default function AdminChatView({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex shrink-0 items-center gap-3 border-b border-ink-200 bg-white px-4 py-3">
+      <div className="flex shrink-0 items-center gap-3 border-b border-ink-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-black">
         <button
           onClick={onBack ? onBack : () => router.push("/admin")}
-          className="mr-1 rounded-lg p-1 text-ink-500 hover:bg-ink-100 md:hidden"
+          className="mr-1 rounded-lg p-1 text-ink-500 hover:bg-ink-100 dark:text-gray-400 dark:hover:bg-gray-800 md:hidden"
           aria-label="Back to admin"
         >
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -123,16 +123,16 @@ export default function AdminChatView({
         </button>
         <Avatar name={title} size="md" />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-sm font-semibold text-ink-900">
+          <h2 className="truncate text-sm font-semibold text-ink-900 dark:text-white">
             {title}
           </h2>
-          <p className="text-xs text-ink-400">
+          <p className="text-xs text-ink-400 dark:text-gray-500">
             {isGroup
               ? `${conversation.participantIds.length} members`
               : "Direct conversation"}
           </p>
         </div>
-        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700">
+        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
           Read-only
         </span>
       </div>
@@ -161,14 +161,14 @@ export default function AdminChatView({
                     />
                     <div className="max-w-[75%]">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-[11px] font-semibold text-ink-700">
+                        <span className="text-[11px] font-semibold text-ink-700 dark:text-gray-300">
                           {sender?.displayName || "Unknown user"}
                         </span>
-                        <span className="text-[10px] text-ink-400">
+                        <span className="text-[10px] text-ink-400 dark:text-gray-500">
                           {formatTime(msg.createdAt)}
                         </span>
                       </div>
-                      <div className="mt-0.5 rounded-2xl rounded-bl-md bg-ink-100 px-3.5 py-2 text-sm text-ink-800">
+                      <div className="mt-0.5 rounded-2xl rounded-bl-md bg-ink-100 px-3.5 py-2 text-sm text-ink-800 dark:bg-gray-800 dark:text-gray-100">
                         <p className="whitespace-pre-wrap break-words">
                           {msg.text}
                         </p>
@@ -177,13 +177,13 @@ export default function AdminChatView({
                             href={msg.file.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-1 inline-block max-w-full truncate rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-brand-600 underline"
+                            className="mt-1 inline-block max-w-full truncate rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-brand-600 underline dark:bg-gray-900 dark:text-brand-400"
                           >
                             {msg.file.name}
                           </a>
                         )}
                         {msg.edited && (
-                          <span className="ml-1 text-[10px] text-ink-400">
+                          <span className="ml-1 text-[10px] text-ink-400 dark:text-gray-500">
                             (edited)
                           </span>
                         )}

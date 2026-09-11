@@ -99,8 +99,8 @@ export default function ConversationList() {
   return (
     <>
       <div className="flex h-full flex-col">
-        <div className="flex items-center justify-between border-b border-ink-200 px-4 py-3">
-          <h2 className="text-sm font-semibold text-ink-900">Messages</h2>
+        <div className="flex items-center justify-between border-b border-ink-200 px-4 py-3 dark:border-gray-800">
+          <h2 className="text-sm font-semibold text-ink-900 dark:text-white">Messages</h2>
           <button
             onClick={() => setShowNewChat(true)}
             className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-600"
@@ -115,7 +115,7 @@ export default function ConversationList() {
               <Spinner className="h-5 w-5 text-brand-500" />
             </div>
           ) : conversations.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm text-ink-400">
+            <div className="px-4 py-10 text-center text-sm text-ink-400 dark:text-gray-500">
               No conversations yet.
               <br />
               Start one by tapping + New above.
@@ -133,8 +133,8 @@ export default function ConversationList() {
                 <Link
                   key={c.id}
                   href={`/chat/${c.id}`}
-                  className={`flex items-center gap-3 border-b border-ink-100 px-4 py-3 transition-colors ${
-                    isActive ? "bg-brand-50" : "hover:bg-ink-50"
+                  className={`flex items-center gap-3 border-b border-ink-100 px-4 py-3 transition-colors dark:border-gray-800 ${
+                    isActive ? "bg-brand-50 dark:bg-brand-900/20" : "hover:bg-ink-50 dark:hover:bg-white/5"
                   }`}
                 >
                   <Avatar
@@ -146,13 +146,13 @@ export default function ConversationList() {
                     <div className="flex items-center justify-between">
                       <span
                         className={`truncate text-sm ${
-                          isUnread ? "font-semibold text-ink-900" : "font-medium text-ink-700"
+                          isUnread ? "font-semibold text-ink-900 dark:text-white" : "font-medium text-ink-700 dark:text-gray-300"
                         }`}
                       >
                         {title}
                       </span>
                       {c.lastMessage && (
-                        <span className="ml-2 shrink-0 text-[11px] text-ink-400">
+                        <span className="ml-2 shrink-0 text-[11px] text-ink-400 dark:text-gray-500">
                           {relativeTime(c.lastMessage.at)}
                         </span>
                       )}
@@ -160,7 +160,7 @@ export default function ConversationList() {
                     {c.lastMessage && (
                       <p
                         className={`mt-0.5 truncate text-xs ${
-                          isUnread ? "font-medium text-ink-700" : "text-ink-400"
+                          isUnread ? "font-medium text-ink-700 dark:text-gray-300" : "text-ink-400 dark:text-gray-500"
                         }`}
                       >
                         {c.lastMessage.text || "File"}

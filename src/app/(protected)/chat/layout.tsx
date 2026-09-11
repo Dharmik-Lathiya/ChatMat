@@ -10,7 +10,7 @@ export default function ChatLayout({
   return (
     <div className="flex h-full">
       {/* Desktop sidebar — always visible */}
-      <div className="hidden w-80 shrink-0 border-r border-ink-200 md:block">
+      <div className="hidden w-64 shrink-0 border-r border-ink-200 dark:border-gray-800 md:block lg:w-80">
         <ConversationList />
       </div>
       {/* Content — full width on mobile, flex-1 on desktop */}

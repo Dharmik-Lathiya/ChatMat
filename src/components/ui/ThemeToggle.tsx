@@ -2,13 +2,24 @@
 
 import { useTheme } from "@/hooks/useTheme";
 
-export function ThemeToggle({ className = "" }: { className?: string }) {
+export function ThemeToggle({
+  className = "",
+  onToggle,
+}: {
+  className?: string;
+  onToggle?: () => void;
+}) {
   const { theme, toggle } = useTheme();
+
+  const handleClick = () => {
+    toggle();
+    onToggle?.();
+  };
 
   return (
     <button
-      onClick={toggle}
-      className={`rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600 dark:hover:bg-ink-200 ${className}`}
+      onClick={handleClick}
+      className={`rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600 dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-gray-300 ${className}`}
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
       {theme === "dark" ? (

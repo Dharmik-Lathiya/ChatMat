@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import { useThemeSync } from "@/hooks/useThemeSync";
 import { updateUserProfile } from "@/services/users";
 import { updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
@@ -14,7 +15,8 @@ import { Avatar } from "@/components/Avatar";
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
   const router = useRouter();
-  const { theme, toggle } = useTheme();
+  const { theme } = useTheme();
+  const { toggleAndSave } = useThemeSync();
   const [displayName, setDisplayName] = useState("");
   const [nameLoaded, setNameLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -59,7 +61,7 @@ export default function SettingsPage() {
   return (
     <div className="flex h-full flex-col overflow-y-auto pb-20 md:pb-0">
       <div className="mx-auto w-full max-w-lg px-6 py-8">
-        <h1 className="text-xl font-bold text-ink-900">Settings</h1>
+        <h1 className="text-xl font-bold text-ink-900 dark:text-white">Settings</h1>
 
         {/* Profile section */}
         <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card dark:border-gray-800 dark:bg-black">
@@ -72,10 +74,10 @@ export default function SettingsPage() {
               size="lg"
             />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-ink-800">
+              <p className="text-sm font-medium text-ink-800 dark:text-gray-100">
                 {profile.displayName}
               </p>
-              <p className="text-xs text-ink-400">{profile.email}</p>
+              <p className="text-xs text-ink-400 dark:text-gray-500">{profile.email}</p>
             </div>
           </div>
 
@@ -92,7 +94,7 @@ export default function SettingsPage() {
 
           <div className="mt-4 space-y-3">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
                 Display Name
               </label>
               <Input
@@ -102,10 +104,10 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
                 Email
               </label>
-              <Input value={profile.email} disabled className="bg-ink-50" />
+              <Input value={profile.email} disabled className="bg-ink-50 dark:bg-gray-900" />
             </div>
             <Button onClick={handleSave} loading={saving} className="w-full">
               Save Changes
@@ -122,7 +124,7 @@ export default function SettingsPage() {
               <p className="text-xs text-ink-400 dark:text-gray-500">Switch between light and dark theme</p>
             </div>
             <button
-              onClick={toggle}
+              onClick={toggleAndSave}
               className={`relative h-6 w-11 rounded-full transition-colors ${
                 theme === "dark" ? "bg-brand-500" : "bg-ink-300"
               }`}
@@ -139,7 +141,7 @@ export default function SettingsPage() {
         {/* Account section */}
         <div className="mt-6 rounded-xl border border-ink-200 bg-white p-6 shadow-card dark:border-gray-800 dark:bg-black">
           <h2 className="text-sm font-semibold text-ink-800 dark:text-white">Account</h2>
-          <p className="mt-1 text-xs text-ink-500">
+          <p className="mt-1 text-xs text-ink-500 dark:text-gray-400">
             Signed in as {profile.email}
           </p>
           <Button

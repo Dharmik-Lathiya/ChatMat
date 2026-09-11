@@ -71,9 +71,9 @@ export default function AdminConversationList({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-ink-200 px-4 py-3">
-        <h2 className="text-sm font-semibold text-ink-900">All conversations</h2>
-        <p className="mt-0.5 text-xs text-ink-400">
+      <div className="border-b border-ink-200 px-4 py-3 dark:border-gray-800">
+        <h2 className="text-sm font-semibold text-ink-900 dark:text-white">All conversations</h2>
+        <p className="mt-0.5 text-xs text-ink-400 dark:text-gray-500">
           Read-only view · {conversations.length} shown
         </p>
       </div>
@@ -84,7 +84,7 @@ export default function AdminConversationList({
             <Spinner className="h-5 w-5 text-brand-500" />
           </div>
         ) : conversations.length === 0 ? (
-          <div className="px-4 py-10 text-center text-sm text-ink-400">
+          <div className="px-4 py-10 text-center text-sm text-ink-400 dark:text-gray-500">
             No conversations found.
           </div>
         ) : (
@@ -108,26 +108,26 @@ export default function AdminConversationList({
               <button
                 key={c.id}
                 onClick={() => onSelect(c)}
-                className={`flex w-full items-center gap-3 border-b border-ink-100 px-4 py-3 text-left transition-colors ${
-                  isActive ? "bg-brand-50" : "hover:bg-ink-50"
+                className={`flex w-full items-center gap-3 border-b border-ink-100 px-4 py-3 text-left transition-colors dark:border-gray-800 ${
+                  isActive ? "bg-brand-50 dark:bg-brand-900/20" : "hover:bg-ink-50 dark:hover:bg-white/5"
                 }`}
               >
                 <Avatar name={title} photoURL={photo || undefined} size="md" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-sm font-medium text-ink-800">
+                    <span className="truncate text-sm font-medium text-ink-800 dark:text-gray-100">
                       {title}
                     </span>
-                    <span className="truncate text-[10px] uppercase tracking-wide text-ink-400">
+                    <span className="truncate text-[10px] uppercase tracking-wide text-ink-400 dark:text-gray-500">
                       {isGroup ? "group" : "direct"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-xs text-ink-400">
+                    <span className="truncate text-xs text-ink-400 dark:text-gray-500">
                       {c.lastMessage?.text || "No messages"}
                     </span>
                     {c.lastMessage && (
-                      <span className="shrink-0 text-[11px] text-ink-400">
+                      <span className="shrink-0 text-[11px] text-ink-400 dark:text-gray-500">
                         {relativeTime(c.lastMessage.at)}
                       </span>
                     )}

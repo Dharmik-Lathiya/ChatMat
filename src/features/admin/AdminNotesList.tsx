@@ -42,8 +42,8 @@ export default function AdminNotesList() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-ink-200 px-4 py-3">
-        <p className="mt-0.5 text-xs text-ink-400">
+      <div className="border-b border-ink-200 px-4 py-3 dark:border-gray-800">
+        <p className="mt-0.5 text-xs text-ink-400 dark:text-gray-500">
           Read-only view · {notes.length} public notes
         </p>
       </div>
@@ -54,7 +54,7 @@ export default function AdminNotesList() {
             <Spinner className="h-5 w-5 text-brand-500" />
           </div>
         ) : notes.length === 0 ? (
-          <div className="px-4 py-10 text-center text-sm text-ink-400">
+          <div className="px-4 py-10 text-center text-sm text-ink-400 dark:text-gray-500">
             No public notes found.
           </div>
         ) : (
@@ -64,9 +64,9 @@ export default function AdminNotesList() {
               href={`/p/${note.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-start gap-3 border-b border-ink-100 px-4 py-3 text-left transition-colors hover:bg-ink-50"
+              className="flex w-full items-start gap-3 border-b border-ink-100 px-4 py-3 text-left transition-colors hover:bg-ink-50 dark:border-gray-800 dark:hover:bg-white/5"
             >
-              <div className="mt-0.5 shrink-0 rounded-md bg-brand-50 p-1.5 text-brand-600">
+              <div className="mt-0.5 shrink-0 rounded-md bg-brand-50 p-1.5 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                   <polyline points="14,2 14,8 20,8" />
@@ -74,14 +74,14 @@ export default function AdminNotesList() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-medium text-ink-800">
+                  <span className="truncate text-sm font-medium text-ink-800 dark:text-gray-100">
                     /{note.slug}
                   </span>
-                  <span className="shrink-0 text-[11px] text-ink-400">
+                  <span className="shrink-0 text-[11px] text-ink-400 dark:text-gray-500">
                     {relativeTime(note.updatedAt)}
                   </span>
                 </div>
-                <p className="mt-0.5 truncate text-xs text-ink-400">
+                <p className="mt-0.5 truncate text-xs text-ink-400 dark:text-gray-500">
                   {preview(note.content, note.title)}
                 </p>
               </div>
