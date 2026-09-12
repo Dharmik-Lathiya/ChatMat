@@ -12,6 +12,7 @@ import {
 import { Button, Input, EmptyState, Modal } from "@/components/ui";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { useToast } from "@/components/ui/Toaster";
+import { richTextToPlain } from "@/lib/tiptap";
 import type { Note } from "@/types";
 
 function relativeTime(ms: number) {
@@ -160,7 +161,7 @@ export default function NotesView() {
       const term = search.toLowerCase();
       return (
         n.title.toLowerCase().includes(term) ||
-        n.content.toLowerCase().includes(term)
+        richTextToPlain(n.content).toLowerCase().includes(term)
       );
     }
     return true;
@@ -422,7 +423,7 @@ function NoteRow({
             {note.title || "Untitled"}
           </h4>
           <p className="mt-0.5 truncate text-xs text-ink-400 dark:text-gray-500">
-            {note.content || "Empty note"}
+            {richTextToPlain(note.content) || "Empty note"}
           </p>
         </div>
         <button

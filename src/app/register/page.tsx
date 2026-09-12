@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { register, loginWithGoogle } from "@/services/auth";
 import { friendlyError } from "@/lib/firebase/errors";
 import { Button, Input, Alert } from "@/components/ui";
+import { ChatmatLogo } from "@/components/ChatmatLogo";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -48,17 +49,17 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50 px-4 dark:from-gray-950 dark:via-black dark:to-gray-900">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500 text-xl font-bold text-white">
-            C
+          <div className="mb-3 flex justify-center">
+            <ChatmatLogo />
           </div>
-          <h1 className="text-2xl font-bold text-ink-900">Create account</h1>
-          <p className="mt-1 text-sm text-ink-500">Get started with Chatmat</p>
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-white">Create account</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-gray-400">Get started with Chatmat</p>
         </div>
 
-        <div className="rounded-xl border border-ink-200 bg-white p-6 shadow-card">
+        <div className="rounded-xl border border-ink-200 bg-white p-6 shadow-card dark:border-gray-800 dark:bg-gray-900">
           {error && (
             <Alert tone="error" key={error}>
               {error}
@@ -67,7 +68,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
                 Name
               </label>
               <Input
@@ -79,7 +80,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
                 Email
               </label>
               <Input
@@ -92,7 +93,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
                 Password
               </label>
               <Input
@@ -111,9 +112,9 @@ export default function RegisterPage() {
           </form>
 
           <div className="my-4 flex items-center gap-3">
-            <div className="h-px flex-1 bg-ink-200" />
-            <span className="text-xs text-ink-400">OR</span>
-            <div className="h-px flex-1 bg-ink-200" />
+            <div className="h-px flex-1 bg-ink-200 dark:bg-gray-800" />
+            <span className="text-xs text-ink-400 dark:text-gray-500">OR</span>
+            <div className="h-px flex-1 bg-ink-200 dark:bg-gray-800" />
           </div>
 
           <Button
@@ -132,9 +133,9 @@ export default function RegisterPage() {
           </Button>
         </div>
 
-        <p className="mt-4 text-center text-sm text-ink-500">
+        <p className="mt-4 text-center text-sm text-ink-500 dark:text-gray-400">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-brand-600 hover:text-brand-700">
+          <Link href="/login" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-400">
             Log in
           </Link>
         </p>

@@ -8,6 +8,8 @@ import {
   slugExists,
 } from "@/services/publicNotes";
 import { Spinner } from "@/components/ui";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
 
 export default function PublicNotePage() {
   const params = useParams();
@@ -20,7 +22,6 @@ export default function PublicNotePage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState("");
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Load note
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function PublicNotePage() {
       });
   }, [slug]);
 
-  // Autosave debounced
+// Autosave debounced
   const scheduleSave = useCallback(
     (text: string) => {
       clearTimeout(saveTimerRef.current);
@@ -82,41 +83,33 @@ export default function PublicNotePage() {
     }
   }
 
-  // Auto-grow textarea
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = Math.max(el.scrollHeight, 300) + "px";
-    }
-  }, [content, loading]);
-
   if (!slug) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50">
-        <p className="text-ink-500">No note name provided.</p>
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50 dark:from-gray-950 dark:via-black dark:to-gray-900">
+        <p className="text-ink-500 dark:text-gray-400">No note name provided.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50 dark:from-gray-950 dark:via-black dark:to-gray-900">
       {/* Header */}
-      <header className="border-b border-ink-200 bg-white/80 backdrop-blur">
+      <header className="border-b border-ink-200 bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-black/80">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500 text-xs font-bold text-white">
               C
             </div>
-            <span className="text-sm font-semibold text-ink-700">Chatmat</span>
+            <span className="text-sm font-semibold text-ink-700 dark:text-gray-200">Chatmat</span>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             {saveStatus && (
-              <span className="text-xs text-ink-400">
+              <span className="text-xs text-ink-400 dark:text-gray-500">
                 {saveStatus === "saving" ? "Saving…" : "Saved ✓"}
               </span>
             )}
-            <span className="rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
+            <span className="rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-900/30 dark:text-brand-400">
               #{slug}
             </span>
           </div>
@@ -131,14 +124,14 @@ export default function PublicNotePage() {
           </div>
         ) : notFound ? (
           <div className="py-10 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-3xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-3xl dark:bg-brand-900/30">
               📝
             </div>
-            <h2 className="text-lg font-semibold text-ink-800">
-              Note <span className="text-brand-600">#{slug}</span> doesn&apos;t
+            <h2 className="text-lg font-semibold text-ink-800 dark:text-white">
+              Note <span className="text-brand-600 dark:text-brand-400">#{slug}</span> doesn&apos;t
               exist yet
             </h2>
-            <p className="mt-2 text-sm text-ink-500">
+            <p className="mt-2 text-sm text-ink-500 dark:text-gray-400">
               Start typing to create it. Your content will be saved
               automatically.
             </p>
@@ -146,12 +139,11 @@ export default function PublicNotePage() {
               <p className="mt-2 text-sm text-red-500">{error}</p>
             )}
             <div className="mx-auto mt-6 max-w-xl">
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => handleChange(e.target.value)}
+              <TipTapEditor
+                content={content}
+                onChange={setContent}
                 placeholder="Start writing here…"
-                className="min-h-[200px] w-full resize-none rounded-xl border border-ink-200 bg-white p-4 text-sm text-ink-900 placeholder:text-ink-400 shadow-card focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                minHeight="min-h-[200px]"
                 autoFocus
               />
               <button
@@ -165,12 +157,11 @@ export default function PublicNotePage() {
           </div>
         ) : (
           <div>
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => handleChange(e.target.value)}
+            <TipTapEditor
+              content={content}
+              onChange={handleChange}
               placeholder="Start writing…"
-              className="min-h-[400px] w-full resize-none rounded-xl border border-ink-200 bg-white p-4 text-sm leading-relaxed text-ink-900 placeholder:text-ink-400 shadow-card focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              minHeight="min-h-[400px]"
             />
             {error && (
               <p className="mt-2 text-center text-sm text-red-500">{error}</p>
@@ -180,7 +171,7 @@ export default function PublicNotePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-ink-100 py-4 text-center text-xs text-ink-400">
+      <footer className="border-t border-ink-100 py-4 text-center text-xs text-ink-400 dark:border-gray-800 dark:text-gray-500">
         Public notepad · Anyone with this URL can view and edit
       </footer>
     </div>

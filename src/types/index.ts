@@ -45,6 +45,8 @@ export interface Message {
   id: string;
   senderId: string;
   text: string;
+  /** Plain-text copy of a rich-text message (present when text holds HTML). */
+  plainText?: string;
   file?: MessageFile;
   edited?: boolean;
   editedAt?: number;

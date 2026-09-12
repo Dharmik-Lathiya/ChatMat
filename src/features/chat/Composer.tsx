@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useCallback, useRef } from "react";
+import type { Editor } from "@tiptap/react";
 import { useAuth } from "@/hooks/useAuth";
 import { sendMessage } from "@/services/chat";
 import { setTyping } from "@/services/presence";
 import { useToast } from "@/components/ui/Toaster";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
 
 export default function Composer({
   conversationId,
@@ -13,71 +15,75 @@ export default function Composer({
 }) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
+  const typingRef = useRef(false);
+  const editorRef = useRef<Editor | null>(null);
 
-  function autoGrow() {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 120) + "px";
-  }
+  const handleInit = useCallback((editor: Editor) => {
+    editorRef.current = editor;
+  }, []);
 
   const handleSend = useCallback(async () => {
     if (!user) return;
-    const trimmed = text.trim();
-    if (!trimmed) return;
-    setSending(true);
+    const editor = editorRef.current;
+    if (!editor) return;
+    const html = editor.getHTML();
+    const plain = editor.getText().trim();
+    if (!plain) return;
     try {
       await sendMessage({
         conversationId,
         senderId: user.uid,
-        text: trimmed,
+        text: plain,
+        html,
+        plainText: plain,
       });
-      setText("");
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
+      editor.commands.clearContent();
+      if (typingRef.current) {
+        setTyping(conversationId, user.uid, false);
+        typingRef.current = false;
       }
     } catch {
       toast("Failed to send message. Please try again.");
-    } finally {
-      setSending(false);
     }
-  }, [text, user, conversationId, toast]);
+  }, [user, conversationId, toast]);
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  }
+  const handleTyping = useCallback(
+    (hasContent: boolean) => {
+      if (!user) return;
+      if (typingRef.current !== hasContent) {
+        typingRef.current = hasContent;
+        setTyping(conversationId, user.uid, hasContent);
+      }
+    },
+    [user, conversationId]
+  );
 
-  function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setText(e.target.value);
-    autoGrow();
-    // Emit typing indicator
-    if (user) {
-      setTyping(conversationId, user.uid, e.target.value.length > 0);
-    }
-  }
+  const onChange = useCallback(
+    () => {
+      handleTyping((editorRef.current?.getText().trim().length ?? 0) > 0);
+    },
+    [handleTyping]
+  );
 
   return (
-    <div className="border-t border-ink-200 bg-white px-4 py-3">
+    <div className="border-t border-ink-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-black">
       <div className="flex items-end gap-2">
-        <textarea
-          ref={textareaRef}
-          value={text}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
-          rows={1}
-          className="max-h-[120px] min-h-[40px] flex-1 resize-none rounded-xl border border-ink-200 bg-ink-50 px-4 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-        />
+        <div className="flex-1">
+          <TipTapEditor
+            content=""
+            onChange={onChange}
+            placeholder="Type a message..."
+            toolbar={false}
+            minHeight="min-h-[40px]"
+            autoFocus
+            sync={false}
+            onSubmit={handleSend}
+            onInit={handleInit}
+          />
+        </div>
         <button
-          onClick={handleSend}
-          disabled={sending || !text.trim()}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white transition-colors hover:bg-brand-600 disabled:bg-brand-300"
+          onClick={() => void handleSend()}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white transition-colors hover:bg-brand-600"
         >
           <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />

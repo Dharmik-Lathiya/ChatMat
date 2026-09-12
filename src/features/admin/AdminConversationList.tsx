@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { subscribeAllConversations } from "@/services/admin";
 import { getUserProfile } from "@/services/users";
 import { Avatar } from "@/components/Avatar";
-import { Spinner } from "@/components/ui";
+import { Spinner, Input } from "@/components/ui";
 import type { Conversation, UserProfile } from "@/types";
 
 function relativeTime(ms: number) {
@@ -30,6 +30,7 @@ export default function AdminConversationList({
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [profiles, setProfiles] = useState<Record<string, UserProfile>>({});
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const profileCache = useRef<Map<string, UserProfile>>(new Map());
 
   const loadProfiles = useCallback(async (convos: Conversation[]) => {
@@ -76,6 +77,12 @@ export default function AdminConversationList({
         <p className="mt-0.5 text-xs text-ink-400 dark:text-gray-500">
           Read-only view · {conversations.length} shown
         </p>
+        <Input
+          placeholder="Search conversations..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mt-2 h-8 text-sm"
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -88,7 +95,27 @@ export default function AdminConversationList({
             No conversations found.
           </div>
         ) : (
-          conversations.map((c) => {
+          conversations
+            .filter((c) => {
+              const term = search.trim().toLowerCase();
+              if (!term) return true;
+              const isGroup = c.type === "group";
+              const otherUids = c.participantIds.filter(
+                (pid) => !(user && pid === user.uid)
+              );
+              const title = isGroup
+                ? c.name || "Group"
+                : (otherUids
+                    .map((u) => profiles[u]?.displayName)
+                    .filter(Boolean)
+                    .join(", ") || "Chat");
+              const last = c.lastMessage?.text || "";
+              return (
+                title.toLowerCase().includes(term) ||
+                last.toLowerCase().includes(term)
+              );
+            })
+            .map((c) => {
             const isActive = c.id === activeId;
             const isGroup = c.type === "group";
             const otherUids = c.participantIds.filter(

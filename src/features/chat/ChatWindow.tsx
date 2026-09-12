@@ -20,8 +20,12 @@ import { Avatar } from "@/components/Avatar";
 import { Spinner, Modal, Input, Button, EmptyState } from "@/components/ui";
 import { useToast } from "@/components/ui/Toaster";
 import type { Conversation, Message, UserProfile } from "@/types";
+import { richTextToPlain } from "@/lib/tiptap";
 import Composer from "./Composer";
 import EmojiPicker from "./EmojiPicker";
+import type { Editor } from "@tiptap/react";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
+import { RichText } from "@/components/editor/RichText";
 
 function formatTime(ts: Message["createdAt"]) {
   const ms = messageTime(ts);
@@ -48,7 +52,8 @@ export default function ChatWindow({
   const [visibleCount, setVisibleCount] = useState(30);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editText, setEditText] = useState("");
+  const [editHtml, setEditHtml] = useState("");
+  const editEditorRef = useRef<Editor | null>(null);
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [menuId, setMenuId] = useState<string | null>(null);
@@ -153,11 +158,15 @@ export default function ChatWindow({
   }, [messages.length, visibleCount]);
 
   async function handleEdit(id: string) {
-    if (!editText.trim()) return;
+    const editor = editEditorRef.current;
+    const plain = editor ? editor.getText().trim() : "";
+    if (!plain) return;
+    const html = editor ? editor.getHTML() : "";
     try {
-      await editMessage(conversationId, id, editText.trim());
+      await editMessage(conversationId, id, plain, { html });
       setEditingId(null);
-      setEditText("");
+      setEditHtml("");
+      editEditorRef.current = null;
     } catch {
       toast("Failed to edit message.");
     }
@@ -353,10 +362,13 @@ export default function ChatWindow({
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.filter(msg => 
-              !searchQuery.trim() || 
-              msg.text.toLowerCase().includes(searchQuery.toLowerCase())
-            ).map((msg) => {
+            {messages.filter((msg) => {
+              const term = searchQuery.trim().toLowerCase();
+              if (!term) return true;
+              return richTextToPlain(msg.plainText ?? msg.text)
+                .toLowerCase()
+                .includes(term);
+            }).map((msg) => {
               const isOwn = msg.senderId === user?.uid;
               const senderProfile = profiles[msg.senderId];
 
@@ -404,15 +416,21 @@ export default function ChatWindow({
                     >
                       {editingId === msg.id ? (
                         <div className="flex flex-col gap-1">
-                          <textarea
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            className="min-h-[60px] resize-none rounded-lg border border-ink-300 bg-white p-1.5 text-sm text-ink-900"
+                          <TipTapEditor
+                            content={editHtml}
+                            onChange={() => {}}
+                            placeholder="Edit message..."
+                            toolbar={false}
+                            minHeight="min-h-[60px]"
                             autoFocus
+                            sync={false}
+                            onInit={(editor) => {
+                              editEditorRef.current = editor;
+                            }}
                           />
                           <div className="flex gap-1">
                             <button
-                              onClick={() => handleEdit(msg.id)}
+                              onClick={() => void handleEdit(msg.id)}
                               className="rounded bg-brand-500 px-2 py-0.5 text-xs text-white"
                             >
                               Save
@@ -420,7 +438,8 @@ export default function ChatWindow({
                             <button
                               onClick={() => {
                                 setEditingId(null);
-                                setEditText("");
+                                setEditHtml("");
+                                editEditorRef.current = null;
                               }}
                               className="rounded bg-ink-200 px-2 py-0.5 text-xs text-ink-600"
                             >
@@ -430,9 +449,16 @@ export default function ChatWindow({
                         </div>
                       ) : (
                         <>
-                          <p className="whitespace-pre-wrap break-words">
-                            {msg.text}
-                          </p>
+                          {msg.plainText !== undefined ? (
+                            <RichText
+                              html={msg.text}
+                              className="rich-text-message break-words"
+                            />
+                          ) : (
+                            <p className="whitespace-pre-wrap break-words">
+                              {msg.text}
+                            </p>
+                          )}
                           {msg.edited && (
                             <span
                               className={`ml-1 text-[10px] ${
@@ -537,7 +563,8 @@ export default function ChatWindow({
                         <button
                           onClick={() => {
                             setEditingId(msg.id);
-                            setEditText(msg.text);
+                            setEditHtml(msg.text);
+                            editEditorRef.current = null;
                             setMenuId(null);
                           }}
                           className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50 dark:text-gray-300 dark:hover:bg-white/5"

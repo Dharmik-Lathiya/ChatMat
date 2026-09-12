@@ -10,8 +10,9 @@ import {
 import { subscribeNotes, countNotes } from "@/services/notes";
 import { Avatar } from "@/components/Avatar";
 import { getUserProfile } from "@/services/users";
-import { Spinner, EmptyState } from "@/components/ui";
+import { Spinner, EmptyState, Input } from "@/components/ui";
 import type { Conversation, Note, UserProfile } from "@/types";
+import { richTextToPlain } from "@/lib/tiptap";
 
 function relativeTime(ms: number) {
   const diff = Date.now() - ms;
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const [noteCount, setNoteCount] = useState(0);
   const [convCount, setConvCount] = useState(0);
   const [profiles, setProfiles] = useState<Record<string, UserProfile>>({});
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function DashboardPage() {
     const unsubConv = subscribeConversations(
       user.uid,
       (list) => {
-        setConversations(list.slice(0, 4));
+        setConversations(list);
         setConvCount(list.length);
         done();
         // Load profiles
@@ -73,7 +75,7 @@ export default function DashboardPage() {
     const unsubNotes = subscribeNotes(
       user.uid,
       (list) => {
-        setNotes(list.filter((n) => !n.archived).slice(0, 4));
+        setNotes(list.filter((n) => !n.archived));
         setNoteCount(list.length);
         done();
       },
@@ -88,6 +90,33 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
+  const term = search.trim().toLowerCase();
+  const shownChats = conversations
+    .filter((c) => {
+      if (!term) return true;
+      const otherId = c.participantIds.find((pid) => pid !== user.uid);
+      const title =
+        c.type === "group"
+          ? c.name || "Group"
+          : (otherId && profiles[otherId]?.displayName) || "";
+      const last = c.lastMessage?.text || "";
+      return (
+        title.toLowerCase().includes(term) ||
+        last.toLowerCase().includes(term)
+      );
+    })
+    .slice(0, term ? undefined : 4);
+
+  const shownNotes = notes
+    .filter((n) => {
+      if (!term) return true;
+      return (
+        (n.title || "").toLowerCase().includes(term) ||
+        richTextToPlain(n.content).toLowerCase().includes(term)
+      );
+    })
+    .slice(0, term ? undefined : 4);
+
   return (
     <div className="flex h-full flex-col overflow-y-auto pb-20 md:pb-0">
       <div className="px-6 py-6">
@@ -98,6 +127,14 @@ export default function DashboardPage() {
         <p className="mt-1 text-sm text-ink-500 dark:text-gray-400">
           Welcome to your Chatmat workspace.
         </p>
+
+        <div className="mt-4">
+          <Input
+            placeholder="Search chats and notes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -147,7 +184,7 @@ export default function DashboardPage() {
                 <h2 className="text-sm font-semibold text-ink-800 dark:text-white">
                   Recent Chats
                 </h2>
-                {conversations.length > 0 && (
+                {shownChats.length > 0 && (
                   <Link
                     href="/chat"
                     className="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
@@ -156,10 +193,10 @@ export default function DashboardPage() {
                   </Link>
                 )}
               </div>
-              {conversations.length === 0 ? (
+              {shownChats.length === 0 ? (
                 <EmptyState
-                  title="No conversations yet"
-                  description="Start chatting with someone."
+                  title={term ? "No chats match your search" : "No conversations yet"}
+                  description={term ? "Try a different search term." : "Start chatting with someone."}
                   action={
                     <Link
                       href="/chat"
@@ -171,7 +208,7 @@ export default function DashboardPage() {
                 />
               ) : (
                 <div className="mt-2 space-y-2">
-                  {conversations.map((c) => {
+                  {shownChats.map((c) => {
                     const title =
                       c.type === "group"
                         ? c.name || "Group"
@@ -231,7 +268,7 @@ export default function DashboardPage() {
                 <h2 className="text-sm font-semibold text-ink-800 dark:text-white">
                   Recent Notes
                 </h2>
-                {notes.length > 0 && (
+                {shownNotes.length > 0 && (
                   <Link
                     href="/notes"
                     className="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
@@ -240,10 +277,10 @@ export default function DashboardPage() {
                   </Link>
                 )}
               </div>
-              {notes.length === 0 ? (
+              {shownNotes.length === 0 ? (
                 <EmptyState
-                  title="No notes yet"
-                  description="Create your first note."
+                  title={term ? "No notes match your search" : "No notes yet"}
+                  description={term ? "Try a different search term." : "Create your first note."}
                   action={
                     <Link
                       href="/notes"
@@ -255,7 +292,7 @@ export default function DashboardPage() {
                 />
               ) : (
                 <div className="mt-2 space-y-2">
-                  {notes.map((n) => (
+                  {shownNotes.map((n) => (
                     <Link
                       key={n.id}
                       href="/notes"
@@ -265,7 +302,7 @@ export default function DashboardPage() {
                         {n.title || "Untitled"}
                       </h4>
                       <p className="mt-0.5 truncate text-xs text-ink-400 dark:text-gray-500">
-                        {n.content || "Empty note"} · {relativeTime(n.updatedAt)}
+                        {richTextToPlain(n.content) || "Empty note"} · {relativeTime(n.updatedAt)}
                       </p>
                     </Link>
                   ))}

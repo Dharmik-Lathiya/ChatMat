@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { subscribeConversations } from "@/services/chat";
 import { getUserProfile } from "@/services/users";
 import { Avatar } from "@/components/Avatar";
-import { Spinner } from "@/components/ui";
+import { Spinner, Input } from "@/components/ui";
 import type { Conversation, UserProfile } from "@/types";
 import NewChatModal from "./NewChatModal";
 
@@ -28,6 +28,7 @@ export default function ConversationList() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [profiles, setProfiles] = useState<Record<string, UserProfile>>({});
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [showNewChat, setShowNewChat] = useState(false);
   const profileCache = useRef<Map<string, UserProfile>>(new Map());
 
@@ -96,6 +97,14 @@ export default function ConversationList() {
     return c.participantIds.find((pid) => pid !== user?.uid) || "";
   }
 
+  const filtered = conversations.filter((c) => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    const title = getTitle(c).toLowerCase();
+    const lastMessage = (c.lastMessage?.text || "").toLowerCase();
+    return title.includes(term) || lastMessage.includes(term);
+  });
+
   return (
     <>
       <div className="flex h-full flex-col">
@@ -109,19 +118,32 @@ export default function ConversationList() {
           </button>
         </div>
 
+        <div className="border-b border-ink-200 px-4 py-2 dark:border-gray-800">
+          <Input
+            placeholder="Search chats..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-8 text-sm"
+          />
+        </div>
+
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-10">
               <Spinner className="h-5 w-5 text-brand-500" />
             </div>
-          ) : conversations.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <div className="px-4 py-10 text-center text-sm text-ink-400 dark:text-gray-500">
-              No conversations yet.
-              <br />
-              Start one by tapping + New above.
+              {search ? "No chats match your search." : (
+                <>
+                  No conversations yet.
+                  <br />
+                  Start one by tapping + New above.
+                </>
+              )}
             </div>
           ) : (
-            conversations.map((c) => {
+            filtered.map((c) => {
               const isActive = pathname === `/chat/${c.id}`;
               const title = getTitle(c);
               const photo = getPhoto(c);

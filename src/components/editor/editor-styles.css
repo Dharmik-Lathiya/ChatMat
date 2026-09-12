@@ -1,6 +1,18 @@
 .tiptap {
   outline: none;
-  min-height: 200px;
+}
+
+.rich-text-message {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.rich-text-message > *:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text-message > *:first-child {
+  margin-top: 0;
 }
 
 .tiptap p.is-editor-empty:first-child::before {

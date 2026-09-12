@@ -157,6 +157,10 @@ export interface SendMessageInput {
   conversationId: string;
   senderId: string;
   text: string;
+  /** Rich-text (HTML) body when the message was composed with the editor. */
+  html?: string;
+  /** Plain-text copy of the rich-text body, used for previews/search. */
+  plainText?: string;
   file?: {
     url: string;
     name: string;
@@ -167,14 +171,18 @@ export interface SendMessageInput {
 
 export async function sendMessage(input: SendMessageInput): Promise<void> {
   const { conversationId, senderId } = input;
+  const displayText = input.plainText ?? input.text;
 
   const message: Record<string, unknown> = {
     senderId,
-    text: input.text.slice(0, 4000),
+    text: (input.html ?? input.text).slice(0, 4000),
     deleted: false,
     edited: false,
     createdAt: serverTimestamp(),
   };
+  if (input.html) {
+    message.plainText = displayText.slice(0, 4000);
+  }
   if (input.file) {
     message.file = input.file;
   }
@@ -183,7 +191,7 @@ export async function sendMessage(input: SendMessageInput): Promise<void> {
   // the authoritative value is written by updatedAt below.
   const nowMs = Date.now();
   const lastMessage: LastMessage = {
-    text: input.text || (input.file ? input.file.name : ""),
+    text: displayText || (input.file ? input.file.name : ""),
     senderId,
     at: nowMs,
   };
@@ -198,13 +206,18 @@ export async function sendMessage(input: SendMessageInput): Promise<void> {
 export async function editMessage(
   conversationId: string,
   messageId: string,
-  text: string
+  text: string,
+  opts?: { html?: string }
 ): Promise<void> {
-  await updateDoc(doc(db, "conversations", conversationId, "messages", messageId), {
-    text: text.slice(0, 4000),
+  const update: Record<string, unknown> = {
+    text: (opts?.html ?? text).slice(0, 4000),
     edited: true,
     editedAt: Date.now(),
-  });
+  };
+  if (opts?.html) {
+    update.plainText = text.slice(0, 4000);
+  }
+  await updateDoc(doc(db, "conversations", conversationId, "messages", messageId), update);
 }
 
 export async function deleteMessage(

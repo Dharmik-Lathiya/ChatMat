@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { login, loginWithGoogle } from "@/services/auth";
 import { friendlyError } from "@/lib/firebase/errors";
 import { Button, Input, Alert } from "@/components/ui";
+import { ChatmatLogo } from "@/components/ChatmatLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,17 +45,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50 px-4 dark:from-gray-950 dark:via-black dark:to-gray-900">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500 text-xl font-bold text-white">
-            C
+          <div className="mb-3 flex justify-center">
+            <ChatmatLogo />
           </div>
-          <h1 className="text-2xl font-bold text-ink-900">Welcome back</h1>
-          <p className="mt-1 text-sm text-ink-500">Sign in to your Chatmat account</p>
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-white">Welcome back</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-gray-400">Sign in to your Chatmat account</p>
         </div>
 
-        <div className="rounded-xl border border-ink-200 bg-white p-6 shadow-card">
+        <div className="rounded-xl border border-ink-200 bg-white p-6 shadow-card dark:border-gray-800 dark:bg-gray-900">
           {error && (
             <Alert tone="error" key={error}>
               {error}
@@ -63,7 +64,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
                 Email
               </label>
               <Input
@@ -76,7 +77,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-gray-400">
                 Password
               </label>
               <Input
@@ -94,9 +95,9 @@ export default function LoginPage() {
           </form>
 
           <div className="my-4 flex items-center gap-3">
-            <div className="h-px flex-1 bg-ink-200" />
-            <span className="text-xs text-ink-400">OR</span>
-            <div className="h-px flex-1 bg-ink-200" />
+            <div className="h-px flex-1 bg-ink-200 dark:bg-gray-800" />
+            <span className="text-xs text-ink-400 dark:text-gray-500">OR</span>
+            <div className="h-px flex-1 bg-ink-200 dark:bg-gray-800" />
           </div>
 
           <Button
@@ -127,14 +128,14 @@ export default function LoginPage() {
           </Button>
         </div>
 
-        <p className="mt-4 text-center text-sm text-ink-500">
+        <p className="mt-4 text-center text-sm text-ink-500 dark:text-gray-400">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-medium text-brand-600 hover:text-brand-700">
+          <Link href="/register" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-400">
             Sign up
           </Link>
         </p>
-        <p className="mt-1 text-center text-sm text-ink-500">
-          <Link href="/forgot-password" className="font-medium text-brand-600 hover:text-brand-700">
+        <p className="mt-1 text-center text-sm text-ink-500 dark:text-gray-400">
+          <Link href="/forgot-password" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-400">
             Forgot password?
           </Link>
         </p>
@@ -142,16 +143,16 @@ export default function LoginPage() {
         {/* Public notepad entry */}
         <div className="mt-6">
           <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-ink-200" />
-            <span className="text-xs text-ink-400">OR</span>
-            <div className="h-px flex-1 bg-ink-200" />
+            <div className="h-px flex-1 bg-ink-200 dark:bg-gray-800" />
+            <span className="text-xs text-ink-400 dark:text-gray-500">OR</span>
+            <div className="h-px flex-1 bg-ink-200 dark:bg-gray-800" />
           </div>
-          <p className="mt-3 text-center text-xs text-ink-400">
+          <p className="mt-3 text-center text-xs text-ink-400 dark:text-gray-500">
             Open a public notepad — no login needed
           </p>
           <div className="mt-2 flex gap-2">
-            <div className="flex flex-1 items-center rounded-lg border border-ink-200 bg-white px-3 py-2">
-              <span className="shrink-0 text-sm text-ink-400">#</span>
+            <div className="flex flex-1 items-center rounded-lg border border-ink-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
+              <span className="shrink-0 text-sm text-ink-400 dark:text-gray-500">#</span>
               <input
                 type="text"
                 placeholder="e.g. my-notes"
@@ -162,7 +163,7 @@ export default function LoginPage() {
                     router.push(`/p/${padName.trim()}`);
                   }
                 }}
-                className="w-full border-none bg-transparent text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none"
+                className="w-full border-none bg-transparent text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none dark:text-white dark:placeholder:text-gray-500"
               />
             </div>
             <Button

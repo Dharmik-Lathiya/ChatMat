@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { subscribePublicNotes } from "@/services/publicNotes";
-import { Spinner } from "@/components/ui";
+import { Spinner, Input } from "@/components/ui";
+import { richTextToPlain } from "@/lib/tiptap";
 import type { PublicNote } from "@/services/publicNotes";
 
 function relativeTime(ts?: PublicNote["updatedAt"]) {
@@ -21,12 +22,13 @@ function relativeTime(ts?: PublicNote["updatedAt"]) {
 
 function preview(content: string, title?: string) {
   if (title) return title;
-  return content.slice(0, 60) || "Empty note";
+  return richTextToPlain(content).slice(0, 60) || "Empty note";
 }
 
 export default function AdminNotesList() {
   const [notes, setNotes] = useState<PublicNote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -46,6 +48,12 @@ export default function AdminNotesList() {
         <p className="mt-0.5 text-xs text-ink-400 dark:text-gray-500">
           Read-only view · {notes.length} public notes
         </p>
+        <Input
+          placeholder="Search public notes..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mt-2 h-8 text-sm"
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -58,7 +66,17 @@ export default function AdminNotesList() {
             No public notes found.
           </div>
         ) : (
-          notes.map((note) => (
+          notes
+            .filter((note) => {
+              const term = search.trim().toLowerCase();
+              if (!term) return true;
+              return (
+                note.slug.toLowerCase().includes(term) ||
+                (note.title || "").toLowerCase().includes(term) ||
+                richTextToPlain(note.content).toLowerCase().includes(term)
+              );
+            })
+            .map((note) => (
             <a
               key={note.slug}
               href={`/p/${note.slug}`}
