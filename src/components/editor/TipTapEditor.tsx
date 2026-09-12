@@ -8,6 +8,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorToolbar } from "./EditorToolbar";
 import "./editor-styles.css";
@@ -45,11 +46,13 @@ export function TipTapEditor({
       TableCell,
       TableHeader,
       TaskList,
+      TaskItem,
       Placeholder.configure({
         placeholder,
       }),
     ],
     content,
+    immediatelyRender: false,
     autofocus: autoFocus ? "end" : false,
     onCreate: ({ editor }) => {
       onInit?.(editor);
