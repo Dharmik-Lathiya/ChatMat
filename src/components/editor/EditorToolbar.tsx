@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { Editor } from "@tiptap/react";
 
 function ToolbarButton({
@@ -148,15 +149,144 @@ function TaskListIcon() {
   );
 }
 
-interface EditorToolbarProps {
-  editor: Editor | null;
+function ImageIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </svg>
+  );
 }
 
-export function EditorToolbar({ editor }: EditorToolbarProps) {
+function VideoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="5" width="14" height="14" rx="2" ry="2" />
+      <path d="M16 10l6-4v12l-6-4" />
+    </svg>
+  );
+}
+
+function AddRowBelowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="7" x2="21" y2="7" />
+      <line x1="3" y1="14" x2="21" y2="14" />
+      <path d="M12 9.5v3" />
+      <path d="M10.5 11h3" />
+    </svg>
+  );
+}
+
+function AddColumnRightIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="7" y1="3" x2="7" y2="21" />
+      <line x1="14" y1="3" x2="14" y2="21" />
+      <path d="M9.5 12v3" />
+      <path d="M11 10.5h-3" />
+    </svg>
+  );
+}
+
+function DeleteRowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="8" x2="21" y2="8" />
+      <line x1="3" y1="16" x2="21" y2="16" />
+      <path d="M4 8v8" />
+      <path d="M20 8v8" />
+    </svg>
+  );
+}
+
+function DeleteColumnIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="6" y1="3" x2="6" y2="21" />
+      <line x1="16" y1="3" x2="16" y2="21" />
+      <path d="M6 4h10" />
+      <path d="M6 20h10" />
+    </svg>
+  );
+}
+
+function TableHeaderIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <line x1="3" y1="9" x2="21" y2="9" />
+      <path d="M9 9v12" />
+      <path d="M15 9v12" />
+    </svg>
+  );
+}
+
+function DeleteTableIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <line x1="3" y1="9" x2="21" y2="9" />
+      <line x1="3" y1="15" x2="21" y2="15" />
+      <line x1="9" y1="3" x2="9" y2="21" />
+      <line x1="15" y1="3" x2="15" y2="21" />
+      <path d="M3 3l18 18" />
+    </svg>
+  );
+}
+
+interface EditorToolbarProps {
+  editor: Editor | null;
+  onPickImage?: (file: File) => void;
+  onPickVideo?: (file: File) => void;
+}
+
+export function EditorToolbar({ editor, onPickImage, onPickVideo }: EditorToolbarProps) {
+  const imageFileRef = useRef<HTMLInputElement>(null);
+  const videoFileRef = useRef<HTMLInputElement>(null);
+
   if (!editor) return null;
+
+  const inTable = editor.isActive("table");
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-ink-200 px-2 py-1.5 dark:border-ink-600">
+      <input
+        ref={imageFileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onPickImage?.(file);
+          e.target.value = "";
+        }}
+      />
+      <input
+        ref={videoFileRef}
+        type="file"
+        accept="video/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onPickVideo?.(file);
+          e.target.value = "";
+        }}
+      />
+      <ToolbarButton
+        onClick={() => imageFileRef.current?.click()}
+        isActive={false}
+        icon={<ImageIcon />}
+        tooltip="Insert Image"
+      />
+      <ToolbarButton
+        onClick={() => videoFileRef.current?.click()}
+        isActive={false}
+        icon={<VideoIcon />}
+        tooltip="Insert Video"
+      />
+      <Divider />
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         isActive={editor.isActive("bold")}
@@ -213,6 +343,46 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         icon={<TableIcon />}
         tooltip="Insert Table"
       />
+      {inTable && (
+        <>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            isActive={false}
+            icon={<AddRowBelowIcon />}
+            tooltip="Add row below"
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+            isActive={false}
+            icon={<AddColumnRightIcon />}
+            tooltip="Add column right"
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().deleteRow().run()}
+            isActive={false}
+            icon={<DeleteRowIcon />}
+            tooltip="Delete row"
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+            isActive={false}
+            icon={<DeleteColumnIcon />}
+            tooltip="Delete column"
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+            isActive={editor.isActive("tableHeaderRow")}
+            icon={<TableHeaderIcon />}
+            tooltip="Toggle header row"
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().deleteTable().run()}
+            isActive={false}
+            icon={<DeleteTableIcon />}
+            tooltip="Delete table"
+          />
+        </>
+      )}
       <div className="flex-1" />
       <ToolbarButton
         onClick={() => editor.chain().focus().undo().run()}

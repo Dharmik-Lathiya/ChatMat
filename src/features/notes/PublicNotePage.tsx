@@ -91,6 +91,8 @@ export default function PublicNotePage() {
     );
   }
 
+  const mediaTarget = { kind: "note", slug } as const;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-ink-50 to-sky-50 dark:from-gray-950 dark:via-black dark:to-gray-900">
       {/* Header */}
@@ -145,6 +147,7 @@ export default function PublicNotePage() {
                 placeholder="Start writing here…"
                 minHeight="min-h-[200px]"
                 autoFocus
+                mediaTarget={mediaTarget}
               />
               <button
                 onClick={handleCreate}
@@ -162,6 +165,7 @@ export default function PublicNotePage() {
               onChange={handleChange}
               placeholder="Start writing…"
               minHeight="min-h-[400px]"
+              mediaTarget={mediaTarget}
             />
             {error && (
               <p className="mt-2 text-center text-sm text-red-500">{error}</p>

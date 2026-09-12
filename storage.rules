@@ -29,6 +29,15 @@ service firebase.storage {
       allow update, delete: if false;
     }
 
+    // Notepad media: publicly readable (notes are shareable by URL), uploaded
+    // by any signed-in user.
+    match /notes/{slug}/files/{fileName} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.size < 10 * 1024 * 1024;
+      allow update, delete: if false;
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }
