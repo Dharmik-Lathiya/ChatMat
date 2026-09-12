@@ -1,13 +1,21 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import type { Editor } from "@tiptap/react";
 import { useAuth } from "@/hooks/useAuth";
 import { sendMessage } from "@/services/chat";
 import { setTyping } from "@/services/presence";
 import { useToast } from "@/components/ui/Toaster";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
-import { uploadMedia } from "@/lib/media";
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Could not read file."));
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function Composer({
   conversationId,
@@ -20,11 +28,28 @@ export default function Composer({
   const editorRef = useRef<Editor | null>(null);
   const imageFileRef = useRef<HTMLInputElement>(null);
   const videoFileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState<"image" | "video" | null>(null);
 
   const handleInit = useCallback((editor: Editor) => {
     editorRef.current = editor;
   }, []);
+
+  const handleAttach = useCallback(
+    (type: "image" | "video", file: File | undefined) => {
+      if (!file) return;
+      const editor = editorRef.current;
+      if (!editor) return;
+      void fileToDataUrl(file)
+        .then((src) => {
+          if (type === "video") {
+            editor.chain().focus().setVideo({ src }).run();
+          } else {
+            editor.chain().focus().setImage({ src }).run();
+          }
+        })
+        .catch(() => toast("Could not attach file. Please try again."));
+    },
+    [toast]
+  );
 
   const handleSend = useCallback(async () => {
     if (!user) return;
@@ -32,7 +57,10 @@ export default function Composer({
     if (!editor) return;
     const html = editor.getHTML();
     const plain = editor.getText().trim();
-    if (!plain) return;
+    const hasMedia = (editor.getJSON().content ?? []).some(
+      (n) => n.type === "image" || n.type === "video"
+    );
+    if (!plain && !hasMedia) return;
     try {
       await sendMessage({
         conversationId,
@@ -50,31 +78,6 @@ export default function Composer({
       toast("Failed to send message. Please try again.");
     }
   }, [user, conversationId, toast]);
-
-  const handleAttach = useCallback(
-    async (type: "image" | "video", file: File | undefined) => {
-      if (!file || !user) return;
-      const editor = editorRef.current;
-      if (!editor) return;
-      setUploading(type);
-      try {
-        const src = await uploadMedia(
-          { kind: "conversation", conversationId },
-          file
-        );
-        if (type === "video") {
-          editor.chain().focus().setVideo({ src }).run();
-        } else {
-          editor.chain().focus().setImage({ src }).run();
-        }
-      } catch {
-        toast("Upload failed. Please try again.");
-      } finally {
-        setUploading(null);
-      }
-    },
-    [conversationId, toast, user]
-  );
 
   const handleTyping = useCallback(
     (hasContent: boolean) => {
@@ -102,7 +105,7 @@ export default function Composer({
         accept="image/*"
         className="hidden"
         onChange={(e) => {
-          void handleAttach("image", e.target.files?.[0]);
+          handleAttach("image", e.target.files?.[0]);
           e.target.value = "";
         }}
       />
@@ -112,21 +115,15 @@ export default function Composer({
         accept="video/*"
         className="hidden"
         onChange={(e) => {
-          void handleAttach("video", e.target.files?.[0]);
+          handleAttach("video", e.target.files?.[0]);
           e.target.value = "";
         }}
       />
-      {uploading && (
-        <div className="mb-1.5 text-xs font-medium text-brand-600 dark:text-brand-400">
-          Uploading {uploading}…
-        </div>
-      )}
       <div className="flex items-end gap-1.5">
         <div className="flex flex-col gap-0.5 pb-0.5">
           <button
             onClick={() => imageFileRef.current?.click()}
-            disabled={uploading !== null}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 disabled:opacity-40 dark:hover:bg-ink-700 dark:hover:text-ink-200"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 dark:hover:bg-ink-700 dark:hover:text-ink-200"
             title="Attach image"
             type="button"
           >
@@ -138,8 +135,7 @@ export default function Composer({
           </button>
           <button
             onClick={() => videoFileRef.current?.click()}
-            disabled={uploading !== null}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 disabled:opacity-40 dark:hover:bg-ink-700 dark:hover:text-ink-200"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 dark:hover:bg-ink-700 dark:hover:text-ink-200"
             title="Attach video"
             type="button"
           >
@@ -160,7 +156,6 @@ export default function Composer({
             sync={false}
             onSubmit={handleSend}
             onInit={handleInit}
-            mediaTarget={{ kind: "conversation", conversationId }}
           />
         </div>
         <button
