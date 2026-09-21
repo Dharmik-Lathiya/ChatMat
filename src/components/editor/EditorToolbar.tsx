@@ -19,7 +19,7 @@ function ToolbarButton({
       onClick={onClick}
       className={`rounded p-1.5 transition-colors ${
         isActive
-          ? "bg-ink-200 text-ink-800 dark:bg-ink-600 dark:text-ink-100"
+          ? "bg-ink-200 text-ink-800 dark:bg-brand-500/20 dark:text-brand-300"
           : "text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:text-ink-400 dark:hover:bg-ink-700 dark:hover:text-ink-200"
       }`}
       title={tooltip}
@@ -31,7 +31,7 @@ function ToolbarButton({
 }
 
 function Divider() {
-  return <div className="mx-1 h-6 w-px bg-ink-200 dark:bg-ink-600" />;
+  return <div className="mx-1 h-6 w-px bg-ink-200 dark:bg-brand-900" />;
 }
 
 function BoldIcon() {
@@ -251,7 +251,7 @@ export function EditorToolbar({ editor, onPickImage, onPickVideo }: EditorToolba
   const inTable = editor.isActive("table");
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 border-b border-ink-200 px-2 py-1.5 dark:border-ink-600">
+    <div className="flex flex-wrap items-center gap-0.5 border-b border-ink-200 px-2 py-1.5 dark:border-brand-900">
       <input
         ref={imageFileRef}
         type="file"

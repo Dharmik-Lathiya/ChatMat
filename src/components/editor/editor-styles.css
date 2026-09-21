@@ -1,5 +1,35 @@
 .tiptap {
   outline: none;
+  overflow-wrap: break-word;
+}
+
+/* Thin, theme-aware scrollbars for the editor scroll areas */
+.tiptap-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.tiptap-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.tiptap-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tiptap-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.tiptap-scroll::-webkit-scrollbar-thumb:hover {
+  background: #0cb58b;
+}
+.dark .tiptap-scroll {
+  scrollbar-color: #134f42 transparent;
+}
+.dark .tiptap-scroll::-webkit-scrollbar-thumb {
+  background: #134f42;
+}
+.dark .tiptap-scroll::-webkit-scrollbar-thumb:hover {
+  background: #0cb58b;
 }
 
 .rich-text-message {
@@ -21,6 +51,39 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+.dark .tiptap {
+  color: #e2e8f0;
+}
+
+.dark .tiptap h1,
+.dark .tiptap h2,
+.dark .tiptap h3 {
+  color: #f1f5f9;
+}
+
+.dark .tiptap p.is-editor-empty:first-child::before {
+  color: rgba(10, 154, 117, 0.65);
+}
+
+.dark .tiptap blockquote {
+  border-color: #0d5141;
+  color: #94a3b8;
+}
+
+.dark .tiptap code {
+  background: #1e293b;
+  color: #a7f3d3;
+}
+
+.dark .tiptap pre code {
+  background: none;
+  color: inherit;
+}
+
+.tiptap ::selection {
+  background: rgba(12, 181, 139, 0.35);
 }
 
 .tiptap h1 {
@@ -95,6 +158,8 @@
   padding: 0.5rem 0.75rem;
   vertical-align: top;
   position: relative;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tiptap th {
@@ -153,11 +218,11 @@
 
 .dark .tiptap th,
 .dark .tiptap td {
-  border-color: #3f3f52;
+  border-color: #1d5b4c;
 }
 
 .dark .tiptap th {
-  background: #25253a;
+  background: #183a33;
 }
 
 .dark .tiptap .column-resize-handle {

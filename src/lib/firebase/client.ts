@@ -7,7 +7,6 @@ import {
 } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
-import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -67,4 +66,3 @@ function createApp(): FirebaseApp {
 export const app: FirebaseApp = lazyInstance(createApp);
 export const auth: Auth = lazyInstance(() => getAuth(app));
 export const db: Firestore = lazyInstance(() => getFirestore(app));
-export const storage: FirebaseStorage = lazyInstance(() => getStorage(app));

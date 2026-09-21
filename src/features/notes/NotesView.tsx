@@ -9,10 +9,9 @@ import {
   deleteNote,
   shareNote,
 } from "@/services/notes";
-import { Button, Input, EmptyState, Modal } from "@/components/ui";
+import { Button, EmptyState, Modal } from "@/components/ui";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { useToast } from "@/components/ui/Toaster";
-import { richTextToPlain } from "@/lib/tiptap";
 import type { Note } from "@/types";
 
 function relativeTime(ms: number) {
@@ -31,8 +30,6 @@ export default function NotesView() {
   const { toast } = useToast();
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [showArchived, setShowArchived] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -40,7 +37,6 @@ export default function NotesView() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-  const [mobileEditor, setMobileEditor] = useState(false);
 
   // Subscribe to notes
   useEffect(() => {
@@ -102,7 +98,6 @@ export default function NotesView() {
     try {
       const id = await createNote(user.uid);
       setSelectedId(id);
-      setMobileEditor(true);
     } catch {
       toast("Failed to create note.");
     } finally {
@@ -146,7 +141,6 @@ export default function NotesView() {
       await deleteNote(user.uid, deleteId);
       if (selectedId === deleteId) {
         setSelectedId(null);
-        setMobileEditor(false);
       }
       setDeleteId(null);
     } catch {
@@ -154,218 +148,109 @@ export default function NotesView() {
     }
   }
 
-  // Filter notes
-  const filtered = notes.filter((n) => {
-    if (n.archived !== showArchived) return false;
-    if (search.trim()) {
-      const term = search.toLowerCase();
-      return (
-        n.title.toLowerCase().includes(term) ||
-        richTextToPlain(n.content).toLowerCase().includes(term)
-      );
-    }
-    return true;
-  });
-
-  const pinned = filtered.filter((n) => n.pinned);
-  const others = filtered.filter((n) => !n.pinned);
   const selectedNote = notes.find((n) => n.id === selectedId);
 
   return (
-    <div className="flex h-full">
-      {/* Note list */}
-      <div
-        className={`flex h-full w-full flex-col border-r border-ink-200 dark:border-gray-800 md:w-80 ${
-          mobileEditor && selectedId ? "hidden md:flex" : "flex"
-        }`}
-      >
-        <div className="flex items-center gap-2 border-b border-ink-200 px-4 py-3 dark:border-gray-800">
-          <Input
-            placeholder="Search notes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1"
-          />
-          <button
-            onClick={() => setShowArchived(!showArchived)}
-className={`shrink-0 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                showArchived
-                  ? "border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-500/50 dark:bg-brand-900/20 dark:text-brand-400"
-                  : "border-ink-200 text-ink-500 hover:bg-ink-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/5"
-              }`}
-          >
-            {showArchived ? "Archived" : "Active"}
-          </button>
-        </div>
-
-        <div className="px-3 py-2">
-          <Button
-            onClick={handleCreate}
-            loading={creating}
-            className="w-full"
-          >
-            + New Note
-          </Button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          {pinned.length > 0 && (
-            <div className="px-3 pt-2 pb-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-400 dark:text-gray-500">
-                Pinned
-              </span>
-            </div>
-          )}
-          {pinned.map((note) => (
-            <NoteRow
-              key={note.id}
-              note={note}
-              selected={note.id === selectedId}
-              onClick={() => {
-                setSelectedId(note.id);
-                setMobileEditor(true);
-              }}
-              onPin={() => handlePin(note)}
-              onArchive={() => handleArchive(note)}
-              onDelete={() => setDeleteId(note.id)}
+    <div className="flex h-full flex-col bg-white dark:bg-black">
+      {selectedNote ? (
+        <>
+          {/* Editor header */}
+          <div className="flex shrink-0 items-center gap-3 border-b border-ink-200 px-4 py-2 dark:border-gray-800 md:px-6">
+            <input
+              value={editTitle}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder="Untitled"
+              className="min-w-0 flex-1 border-none bg-transparent text-lg font-semibold text-ink-900 placeholder:text-ink-300 focus:outline-none dark:text-white dark:placeholder:text-gray-600"
             />
-          ))}
-          {others.length > 0 && (
-            <div className="px-3 pt-2 pb-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-400 dark:text-gray-500">
-                {pinned.length > 0 ? "Others" : "Notes"}
+            <span className="hidden shrink-0 text-xs text-ink-400 dark:text-gray-500 sm:block">
+              Updated {relativeTime(selectedNote.updatedAt)}
+            </span>
+            {saveStatus && (
+              <span className="shrink-0 text-xs text-ink-400 dark:text-gray-500">
+                {saveStatus === "saving" ? "Saving…" : "Saved ✓"}
               </span>
-            </div>
-          )}
-          {others.map((note) => (
-            <NoteRow
-              key={note.id}
-              note={note}
-              selected={note.id === selectedId}
-              onClick={() => {
-                setSelectedId(note.id);
-                setMobileEditor(true);
-              }}
-              onPin={() => handlePin(note)}
-              onArchive={() => handleArchive(note)}
-              onDelete={() => setDeleteId(note.id)}
-            />
-          ))}
-          {filtered.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-ink-400 dark:text-gray-500">
-              {search ? "No notes match your search." : "No notes yet."}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Editor */}
-      <div
-        className={`flex h-full flex-1 flex-col ${
-          !mobileEditor || !selectedId ? "hidden md:flex" : "flex"
-        }`}
-      >
-        {selectedNote ? (
-          <>
-            {/* Mobile back button */}
-            <div className="flex items-center gap-2 border-b border-ink-200 px-4 py-2 md:hidden dark:border-gray-800">
+            )}
+            <Button
+              onClick={handleCreate}
+              loading={creating}
+              className="shrink-0 px-2.5 py-1 text-xs"
+            >
+              + New
+            </Button>
+            <div className="flex shrink-0 items-center gap-1">
               <button
-                onClick={() => setMobileEditor(false)}
-                className="rounded-lg p-1 text-ink-500 hover:bg-ink-100 dark:text-gray-400 dark:hover:bg-white/10"
+                onClick={() => handlePin(selectedNote)}
+                className={`rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 ${
+                  selectedNote.pinned ? "text-brand-500" : ""
+                }`}
+                title={selectedNote.pinned ? "Unpin" : "Pin"}
               >
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="15,18 9,12 15,6" />
+                <svg viewBox="0 0 24 24" width="16" height="16" fill={selectedNote.pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7L12 16.4 5.7 21l2.3-7L2 9.4h7.6z" />
                 </svg>
               </button>
-              <span className="text-sm font-medium text-ink-700 dark:text-gray-300">Back</span>
-              {saveStatus && (
-                <span className="ml-auto text-xs text-ink-400 dark:text-gray-500">
-                  {saveStatus === "saving" ? "Saving…" : "Saved"}
-                </span>
-              )}
+              <button
+                onClick={() => handleArchive(selectedNote)}
+                className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100"
+                title={selectedNote.archived ? "Unarchive" : "Archive"}
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <polyline points="21,8 21,21 3,21 3,8" />
+                  <rect x="1" y="3" width="22" height="5" rx="1" />
+                  <line x1="10" y1="12" x2="14" y2="12" />
+                </svg>
+              </button>
+              <button
+                onClick={() => handleShare(selectedNote)}
+                className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600"
+                title="Share"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <circle cx="18" cy="5" r="3" />
+                  <circle cx="6" cy="12" r="3" />
+                  <circle cx="18" cy="19" r="3" />
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setDeleteId(selectedNote.id)}
+                className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                title="Delete"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <polyline points="3,6 5,6 21,6" />
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+              </button>
             </div>
-            <div className="hidden items-center justify-between border-b border-ink-200 px-6 py-3 md:flex dark:border-gray-800">
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-ink-400 dark:text-gray-500">
-                  Updated {relativeTime(selectedNote.updatedAt)}
-                </span>
-                {saveStatus && (
-                  <span className="text-xs text-ink-400 dark:text-gray-500">
-                    {saveStatus === "saving" ? "Saving…" : "Saved"}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handlePin(selectedNote)}
-                  className={`rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 ${
-                    selectedNote.pinned ? "text-brand-500" : ""
-                  }`}
-                  title={selectedNote.pinned ? "Unpin" : "Pin"}
-                >
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill={selectedNote.pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
-                    <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7L12 16.4 5.7 21l2.3-7L2 9.4h7.6z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => handleArchive(selectedNote)}
-                  className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100"
-                  title={selectedNote.archived ? "Unarchive" : "Archive"}
-                >
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <polyline points="21,8 21,21 3,21 3,8" />
-                    <rect x="1" y="3" width="22" height="5" rx="1" />
-                    <line x1="10" y1="12" x2="14" y2="12" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => handleShare(selectedNote)}
-                  className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600"
-                  title="Share"
-                >
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <circle cx="18" cy="5" r="3" />
-                    <circle cx="6" cy="12" r="3" />
-                    <circle cx="18" cy="19" r="3" />
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setDeleteId(selectedNote.id)}
-                  className="rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                  title="Delete"
-                >
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <polyline points="3,6 5,6 21,6" />
-                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              <input
-                value={editTitle}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="Untitled"
-                className="mb-2 w-full border-none bg-transparent text-xl font-semibold text-ink-900 placeholder:text-ink-300 focus:outline-none dark:text-white dark:placeholder:text-gray-600"
-              />
-              <TipTapEditor
-                content={editContent}
-                onChange={handleContentChange}
-                placeholder="Start writing your note..."
-              />
-            </div>
-          </>
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <EmptyState
-              title="Select a note"
-              description="Choose a note from the sidebar or create a new one."
+          </div>
+
+          {/* Editor — fills the panel and scrolls inside the box */}
+          <div className="flex min-h-0 flex-1 flex-col px-4 py-3">
+            <TipTapEditor
+              content={editContent}
+              onChange={handleContentChange}
+              placeholder="Start writing your note..."
+              minHeight="min-h-[320px]"
+              fillHeight
             />
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <div className="flex min-h-0 flex-1 items-center justify-center">
+          <EmptyState
+            icon={<span className="text-3xl">📝</span>}
+            title="No note open"
+            description="Create a new note to start writing."
+            action={
+              <Button onClick={handleCreate} loading={creating}>
+                + New Note
+              </Button>
+            }
+          />
+        </div>
+      )}
 
       {/* Delete confirmation */}
       <Modal
@@ -389,97 +274,6 @@ className={`shrink-0 rounded-lg border px-2.5 py-1.5 text-xs font-medium transit
           </Button>
         </div>
       </Modal>
-    </div>
-  );
-}
-
-function NoteRow({
-  note,
-  selected,
-  onClick,
-  onPin,
-  onArchive,
-  onDelete,
-}: {
-  note: Note;
-  selected: boolean;
-  onClick: () => void;
-  onPin: () => void;
-  onArchive: () => void;
-  onDelete: () => void;
-}) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  return (
-    <div
-      onClick={onClick}
-      className={`group relative cursor-pointer border-b border-ink-100 px-3 py-2.5 transition-colors dark:border-gray-800 ${
-        selected ? "bg-brand-50 dark:bg-brand-900/20" : "hover:bg-ink-50 dark:hover:bg-white/5"
-      }`}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <h4 className="truncate text-sm font-medium text-ink-800 dark:text-gray-200">
-            {note.title || "Untitled"}
-          </h4>
-          <p className="mt-0.5 truncate text-xs text-ink-400 dark:text-gray-500">
-            {richTextToPlain(note.content) || "Empty note"}
-          </p>
-        </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen(!menuOpen);
-          }}
-          className="shrink-0 rounded p-1 text-ink-400 opacity-0 transition-opacity hover:text-ink-600 group-hover:opacity-100"
-        >
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-            <circle cx="12" cy="5" r="1.5" />
-            <circle cx="12" cy="12" r="1.5" />
-            <circle cx="12" cy="19" r="1.5" />
-          </svg>
-        </button>
-      </div>
-      <div className="mt-1 flex items-center gap-2 text-[10px] text-ink-400">
-        <span>{relativeTime(note.updatedAt)}</span>
-        {note.pinned && (
-          <span className="text-brand-500">★ Pinned</span>
-        )}
-      </div>
-      {menuOpen && (
-        <div
-          className="absolute right-2 top-8 z-10 rounded-lg border border-ink-200 bg-white shadow-pop dark:border-gray-700 dark:bg-gray-900"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={() => {
-              onPin();
-              setMenuOpen(false);
-            }}
-            className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50 dark:text-gray-300 dark:hover:bg-white/5"
-          >
-            {note.pinned ? "Unpin" : "Pin"}
-          </button>
-          <button
-            onClick={() => {
-              onArchive();
-              setMenuOpen(false);
-            }}
-            className="block w-full px-3 py-1.5 text-left text-xs text-ink-700 hover:bg-ink-50 dark:text-gray-300 dark:hover:bg-white/5"
-          >
-            {note.archived ? "Unarchive" : "Archive"}
-          </button>
-          <button
-            onClick={() => {
-              onDelete();
-              setMenuOpen(false);
-            }}
-            className="block w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
-          >
-            Delete
-          </button>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,21 +1,13 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useAuth } from "@/hooks/useAuth";
 import { sendMessage } from "@/services/chat";
 import { setTyping } from "@/services/presence";
 import { useToast } from "@/components/ui/Toaster";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
-
-function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("Could not read file."));
-    reader.readAsDataURL(file);
-  });
-}
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export default function Composer({
   conversationId,
@@ -28,6 +20,7 @@ export default function Composer({
   const editorRef = useRef<Editor | null>(null);
   const imageFileRef = useRef<HTMLInputElement>(null);
   const videoFileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<"image" | "video" | null>(null);
 
   const handleInit = useCallback((editor: Editor) => {
     editorRef.current = editor;
@@ -38,15 +31,17 @@ export default function Composer({
       if (!file) return;
       const editor = editorRef.current;
       if (!editor) return;
-      void fileToDataUrl(file)
-        .then((src) => {
+      setUploading(type);
+      void uploadToCloudinary(file)
+        .then(({ url }) => {
           if (type === "video") {
-            editor.chain().focus().setVideo({ src }).run();
+            editor.chain().focus().setVideo({ src: url }).run();
           } else {
-            editor.chain().focus().setImage({ src }).run();
+            editor.chain().focus().setImage({ src: url }).run();
           }
         })
-        .catch(() => toast("Could not attach file. Please try again."));
+        .catch(() => toast("Upload failed. Please try again."))
+        .finally(() => setUploading(null));
     },
     [toast]
   );
@@ -119,11 +114,18 @@ export default function Composer({
           e.target.value = "";
         }}
       />
+      {uploading && (
+        <div className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-brand-600 dark:text-brand-400">
+          <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+          Uploading {uploading}…
+        </div>
+      )}
       <div className="flex items-end gap-1.5">
         <div className="flex flex-col gap-0.5 pb-0.5">
           <button
             onClick={() => imageFileRef.current?.click()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 dark:hover:bg-ink-700 dark:hover:text-ink-200"
+            disabled={uploading !== null}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 disabled:opacity-40 dark:hover:bg-ink-700 dark:hover:text-ink-200"
             title="Attach image"
             type="button"
           >
@@ -135,7 +137,8 @@ export default function Composer({
           </button>
           <button
             onClick={() => videoFileRef.current?.click()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 dark:hover:bg-ink-700 dark:hover:text-ink-200"
+            disabled={uploading !== null}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 transition-colors hover:bg-ink-200/60 hover:text-ink-600 disabled:opacity-40 dark:hover:bg-ink-700 dark:hover:text-ink-200"
             title="Attach video"
             type="button"
           >

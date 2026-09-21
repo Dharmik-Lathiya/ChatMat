@@ -69,6 +69,27 @@ export async function slugExists(slug: string): Promise<boolean> {
 
 export { slugify };
 
+/** Realtime listener for a single public note by slug. Returns unsubscribe. */
+export function subscribePublicNote(
+  slug: string,
+  onChange: (note: PublicNote | null) => void,
+  onError?: (error: unknown) => void
+): () => void {
+  const clean = slugify(slug);
+  const ref = doc(db, col, clean);
+  return onSnapshot(
+    ref,
+    (snap) => {
+      if (snap.exists()) {
+        onChange({ slug: snap.id, ...snap.data() } as PublicNote);
+      } else {
+        onChange(null);
+      }
+    },
+    onError
+  );
+}
+
 /** Realtime list of all public notes (newest first). */
 export function subscribePublicNotes(
   onChange: (notes: PublicNote[]) => void,
