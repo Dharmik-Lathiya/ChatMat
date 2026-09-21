@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
+import { Slice, Fragment } from "@tiptap/pm/model";
+import type { Node as PMNode } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -106,22 +108,38 @@ export function TipTapEditor({
         return false;
       },
       handlePaste(view, event) {
-        const files = Array.from(event.clipboardData?.files ?? []).filter(
+        const clipboard = event.clipboardData;
+        if (!clipboard) return false;
+        const files = Array.from(clipboard.files).filter(
           (f) => f.type.startsWith("image/") || f.type.startsWith("video/")
         );
+        // Only take over the paste when the clipboard carries image/video
+        // files and no HTML/text fallback (e.g. a screenshot copy). When
+        // rich content is available, let ProseMirror's normal paste
+        // handling preserve the formatting.
         if (!files.length) return false;
+        if (clipboard.getData("text/html") || clipboard.getData("text/plain")) {
+          return false;
+        }
         event.preventDefault();
-        const from = view.state.selection.from;
-        files.forEach((file, index) => {
-          void fileToDataUrl(file)
-            .then((src) => {
-              const kind = file.type.startsWith("video/") ? "video" : "image";
-              const node = view.state.schema.nodes[kind]?.create({ src });
-              if (!node) return;
-              view.dispatch(view.state.tr.insert(from + index, node));
-            })
-            .catch(console.error);
-        });
+        void Promise.all(files.map(fileToDataUrl))
+          .then((srcs) => {
+            const nodes = srcs
+              .map((src, index) => {
+                const kind = files[index].type.startsWith("video/")
+                  ? "video"
+                  : "image";
+                return view.state.schema.nodes[kind]?.create({ src });
+              })
+              .filter((n): n is PMNode => !!n);
+            if (!nodes.length) return;
+            view.dispatch(
+              view.state.tr.replaceSelection(
+                new Slice(Fragment.fromArray(nodes), 0, 0)
+              )
+            );
+          })
+          .catch(console.error);
         return true;
       },
       handleDrop(view, event) {
